@@ -14,14 +14,124 @@ import {
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
-  const url = new URL(request.url);
-  const assistantId = url.searchParams.get("assistantId");
+  const { session, admin } = await authenticate.admin(request);
+
+  let assistorId = null;
+  let openaiAssistantId = null;
+  let appInstallationId = null;
+  // get app installation
+
+  try {
+    const response = await admin.graphql(
+      `query getAppInstallation{
+        currentAppInstallation {
+          id
+          metafields(first: 5) {  
+            edges {
+              node {
+                key
+                value
+              }
+            }
+          }
+        }
+      }`
+    );
+    const responseJson = await response.json();
+    
+    appInstallationId = responseJson.data.currentAppInstallation.id;
+    assistorId = responseJson.data.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "assistor_id")?.node?.value || null;
+    openaiAssistantId = responseJson.data.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "openai_assistant_id")?.node?.value || null;
+  } catch (error) {
+    console.error("Error fetching App installation id:", error);
+  }
+  console.log("App Installation ID:", appInstallationId);
+  console.log("Assistor ID:", assistorId);
+  console.log("OpenAI Assistant ID:", openaiAssistantId);
+  //return json({ success: true, responseData: { assistorId, openaiAssistantId } });
+  
+  // If assistorId exists, return it and skip the rest of the loader logic
+  if (assistorId == null || assistorId === 'undefined') {
+    //we initialize
+    //first, get the assistorId and openaiAssistantId from the backend
+    try {
+      const response = await fetch("https://assistor.online/version-test/api/1.1/wf/shopify-init", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.BUBBLE_API_KEY}`
+        },
+        body: JSON.stringify({ shopify_domain: session.shop })
+      });
+
+      const responseData = await response.json();
+
+      assistorId = responseData.response.assistor_id;
+      openaiAssistantId = responseData.response.openai_assistant_id;
+
+      if (!response.ok) {
+        throw new Error("Failed to send data to backend");
+      }
+
+      //return json({ success: true, responseData });
+    } catch (error) {
+      console.error("Error sending data to backend:", error);
+      return json({ success: false, error: error.message }, { status: 500 });
+    }
+    console.log("Assistor ID:", assistorId);
+    console.log("OpenAI Assistant ID:", openaiAssistantId);
+
+    // Create 2 app-only metafields
+    try {
+      const response = await admin.graphql(
+        `mutation CreateAppDataMetafield($metafieldsSetInput: [MetafieldsSetInput!]!) {
+          metafieldsSet(metafields: $metafieldsSetInput) {
+            metafields {
+              id
+              namespace
+              key
+              value
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`,
+        {
+          variables: {
+            metafieldsSetInput: [
+              {
+                namespace: "assistor",
+                key: "assistor_id",
+                type: "single_line_text_field",
+                value: assistorId,
+                ownerId: appInstallationId
+              },
+              {
+                namespace: "assistor",
+                key: "openai_assistant_id",
+                type: "single_line_text_field",
+                value: openaiAssistantId,
+                ownerId: appInstallationId
+              }
+            ]
+          }
+        }
+      );
+
+      const responseJson = await response.json();
+      console.log("Metafields created:", responseJson);
+    } catch (error) {
+      console.error("Error creating metafields:", error);
+    }
+
+  }
 
   let instructions = '';
-  if (assistantId) {
+
     try {
-      const response = await fetch(`https://api.openai.com/v1/assistants/${assistantId}`, {
+      const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -38,10 +148,11 @@ export const loader = async ({ request }) => {
     } catch (error) {
       console.error("Error fetching assistant instructions:", error);
     }
-  }
 
   return json({
-    shop: session.shop,
+    appInstallationId,
+    assistorId,
+    openaiAssistantId,
     instructions
   });
 };
@@ -51,36 +162,12 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-  if (intent === "init") {
-    const shopifyDomain = formData.get("shopifyDomain");
-
-    try {
-      const response = await fetch("https://assistor.online/version-test/api/1.1/wf/shopify-init", {
-        method: "POST", 
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.BUBBLE_API_KEY}`
-        },
-        body: JSON.stringify({ shopify_domain: shopifyDomain })
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error("Failed to send data to backend");
-      }
-
-      return json({ success: true, responseData });
-    } catch (error) {
-      console.error("Error sending data to backend:", error);
-      return json({ success: false, error: error.message }, { status: 500 });
-    }
-  } else if (intent === "updateInstructions") {
-    const assistantId = formData.get("assistantId");
+if (intent === "updateInstructions") {
+    const openaiAssistantId = formData.get("openaiAssistantId");
     const instructions = formData.get("instructions");
 
     try {
-      const response = await fetch(`https://api.openai.com/v1/assistants/${assistantId}`, {
+      const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -106,35 +193,15 @@ export const action = async ({ request }) => {
 };
 
 export default function Index() {
-  const { shop, instructions: initialInstructions } = useLoaderData();
+  const { shop, appInstallationId, assistorId: initialAssistorId, openaiAssistantId: initialOpenaiAssistantId, instructions: initialInstructions } = useLoaderData();
   const actionData = useActionData();
   const [instructions, setInstructions] = useState(initialInstructions);
   const submit = useSubmit();
   const fetcher = useFetcher();
 
-  const [assistorId, setAssistorId] = useState('');
-  const [openaiAssistantId, setOpenaiAssistantId] = useState('');
+  const [assistorId, setAssistorId] = useState(initialAssistorId || '');
+  const [openaiAssistantId, setOpenaiAssistantId] = useState(initialOpenaiAssistantId || '');
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    submit({ intent: "init", shopifyDomain: shop }, { method: "post" });
-  }, [shop, submit]);
-
-  useEffect(() => {
-    if (actionData && actionData.success && actionData.responseData && actionData.responseData.response) {
-      const { assistor_id, openai_assistant_id } = actionData.responseData.response;
-      setAssistorId(assistor_id || '');
-      setOpenaiAssistantId(openai_assistant_id || '');
-      
-      if (openai_assistant_id) {
-        submit({ assistantId: openai_assistant_id }, { method: "get" });
-      }
-    }
-  }, [actionData, submit]);
-
-  useEffect(() => {
-    setInstructions(initialInstructions);
-  }, [initialInstructions]);
 
   useEffect(() => {
     if (fetcher.state === 'submitting') {
@@ -146,7 +213,7 @@ export default function Index() {
 
   const handleSaveInstructions = () => {
     fetcher.submit(
-      { intent: "updateInstructions", assistantId: openaiAssistantId, instructions },
+      { intent: "updateInstructions", openaiAssistantId, instructions },
       { method: "post" }
     );
   };
@@ -169,8 +236,8 @@ export default function Index() {
               />
             </div>
           </Card>
-          </Layout.Section>
-          <Layout.Section>
+        </Layout.Section>
+        <Layout.Section>
           <Card sectioned>
             <Text variant="headingMd" as="h2">
               Tips for Training Your Assistant
@@ -183,7 +250,7 @@ export default function Index() {
               <List.Item>Update instructions as you refine your requirements</List.Item>
             </List>
             <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-              Remember, the quality of your instructions directly impacts the performance of your AI assistant. 
+              Remember, the quality of your instructions directly impacts the performance of your AI assistant.
               Regularly review and refine these instructions based on your interactions and needs.
             </Text>
           </Card>

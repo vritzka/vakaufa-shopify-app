@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Assistor - ChatGPT Assistant"
 handle = "assistor"
-application_url = "https://immigrants-gather-paste-consist.trycloudflare.com"
+application_url = "https://variations-casting-ko-flyer.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobject_definitions,read_metaobjects,write_metaobject_definiti
 
 [auth]
 redirect_urls = [
-  "https://immigrants-gather-paste-consist.trycloudflare.com/auth/callback",
-  "https://immigrants-gather-paste-consist.trycloudflare.com/auth/shopify/callback",
-  "https://immigrants-gather-paste-consist.trycloudflare.com/api/auth/callback"
+  "https://variations-casting-ko-flyer.trycloudflare.com/auth/callback",
+  "https://variations-casting-ko-flyer.trycloudflare.com/auth/shopify/callback",
+  "https://variations-casting-ko-flyer.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
