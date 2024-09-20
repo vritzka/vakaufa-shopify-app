@@ -1,0 +1,90 @@
+<script src="https://d1kr663wima0pv.cloudfront.net/assistor.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Assistor !== 'undefined' && Assistor.config) {
+      Assistor.config.position = {{ block.settings.chat_position | json }};
+      Assistor.config.color = {{ block.settings.chat_color | json }};
+      Assistor.config.assistorId = {{ shop.metafields.assistor.assistor_id | json }};
+      Assistor.config.initialGreeting = {{ block.settings.initial_greeting | json }};
+      Assistor.config.width = {{ block.settings.chat_width | json }};
+      Assistor.config.height = {{ block.settings.chat_height | json }};
+      Assistor.config.icon = {{ block.settings.chat_icon | json }};
+      Assistor.config.forceConversation = {{ block.settings.auto_open | json }};
+
+      Assistor.init();
+      
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Assistor",
+  "target": "body",
+  "settings": [
+    {
+      "type": "select",
+      "id": "chat_position",
+      "label": "Chat Position",
+      "options": [
+        { "value": "bottom-right", "label": "Bottom Right" },
+        { "value": "bottom-left", "label": "Bottom Left" },
+        { "value": "top-right", "label": "Top Right" },
+        { "value": "top-left", "label": "Top Left" }
+      ],
+      "default": "bottom-right",
+      "info": "Choose where the chat widget will appear on the page. This affects the position of both the chat icon and the chat window."
+    },
+    {
+      "type": "color",
+      "id": "chat_color",
+      "label": "Chat Color",
+      "default": "#007bff",
+      "info": "Select the primary color for the chat widget. This color will be used for the chat icon background and other UI elements."
+    },
+    {
+      "type": "text",
+      "id": "assistor_id",
+      "label": "Assistor ID",
+      "default": "1234567890",
+      "info": "Enter the unique identifier for this Assistor instance. If you haven't yet, please create a free account at assistor.online to get your Assistor ID. For testing purposes only, you could this id: 1726559610349x942559564468846600"
+    },
+    {
+      "type": "text",
+      "id": "initial_greeting",
+      "label": "Initial Greeting",
+      "default": "Hello! How can I assist you today?",
+      "info": "Set the first message that customers will see when they open the chat. This helps set the tone for the conversation."
+    },
+    {
+      "type": "number",
+      "id": "chat_width",
+      "label": "Chat Width (px)",
+      "default": 400,
+      "info": "Set the width of the chat window in pixels. If the screen is smaller, the width will automatically adjust."
+    },
+    {
+      "type": "number",
+      "id": "chat_height",
+      "label": "Chat Height (px)",
+      "default": 600,
+      "info": "Set the height of the chat window in pixels. If the screen is smaller, the height will automatically adjust."
+    },
+    {
+      "type": "text",
+      "id": "chat_icon",
+      "label": "Chat Icon (Emoji)",
+      "default": "💬",
+      "info": "Enter an emoji to use as the chat icon. This will be displayed on the chat button. For example: 💬, 🤖, or 🗨️"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_open",
+      "label": "Auto Open Chat",
+      "default": false,
+      "info": "If checked, the chat will automatically open on page load. Note: This may slow down page load times."
+    }
+  ]
+}
+{% endschema %}
+
