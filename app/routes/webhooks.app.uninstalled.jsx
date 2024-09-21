@@ -2,7 +2,7 @@ import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 
 export const action = async ({ request }) => {
-  console.log(request)
+
   const { shop, session } = await authenticate.webhook(request);
   
 
