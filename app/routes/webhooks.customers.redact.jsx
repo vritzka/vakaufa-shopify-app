@@ -1,5 +1,7 @@
 import { authenticate } from "../shopify.server";
 
+//app doesn't handle customer or order data, so this webhook is left empty
+
 export const action = async ({ request }) => {
   const { shop, payload } = await authenticate.webhook(request);
 

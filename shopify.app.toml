@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Assistor - ChatGPT Assistant"
 handle = "assistor"
-application_url = "https://variations-casting-ko-flyer.trycloudflare.com"
+application_url = "https://rest-right-payments-knee.trycloudflare.com"
 embedded = true
 
 [build]
@@ -13,17 +13,17 @@ include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_metaobject_definitions,read_metaobjects,write_metaobject_definitions,write_metaobjects"
+scopes = "read_metaobjects,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://variations-casting-ko-flyer.trycloudflare.com/auth/callback",
-  "https://variations-casting-ko-flyer.trycloudflare.com/auth/shopify/callback",
-  "https://variations-casting-ko-flyer.trycloudflare.com/api/auth/callback"
+  "https://rest-right-payments-knee.trycloudflare.com/auth/callback",
+  "https://rest-right-payments-knee.trycloudflare.com/auth/shopify/callback",
+  "https://rest-right-payments-knee.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
-api_version = "2024-07"
+api_version = "2024-10"
 
   [[webhooks.subscriptions]]
   uri = "/webhooks/customers/data_request"

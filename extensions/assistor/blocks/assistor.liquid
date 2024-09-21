@@ -4,7 +4,7 @@
     if (typeof Assistor !== 'undefined' && Assistor.config) {
       Assistor.config.position = {{ block.settings.chat_position | json }};
       Assistor.config.color = {{ block.settings.chat_color | json }};
-      Assistor.config.assistorId = {{ shop.metafields.assistor.assistor_id | json }};
+      Assistor.config.assistorId = {{ app.metafields.assistor.assistor_id | json }};
       Assistor.config.initialGreeting = {{ block.settings.initial_greeting | json }};
       Assistor.config.width = {{ block.settings.chat_width | json }};
       Assistor.config.height = {{ block.settings.chat_height | json }};
@@ -41,13 +41,6 @@
       "label": "Chat Color",
       "default": "#007bff",
       "info": "Select the primary color for the chat widget. This color will be used for the chat icon background and other UI elements."
-    },
-    {
-      "type": "text",
-      "id": "assistor_id",
-      "label": "Assistor ID",
-      "default": "1234567890",
-      "info": "Enter the unique identifier for this Assistor instance. If you haven't yet, please create a free account at assistor.online to get your Assistor ID. For testing purposes only, you could this id: 1726559610349x942559564468846600"
     },
     {
       "type": "text",

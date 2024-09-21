@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import { useLoaderData, useSubmit, useActionData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useSubmit, useActionData, useFetcher, redirect } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import {
   Page,
@@ -38,24 +38,23 @@ export const loader = async ({ request }) => {
       }`
     );
     const responseJson = await response.json();
-    
+
     appInstallationId = responseJson.data.currentAppInstallation.id;
     assistorId = responseJson.data.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "assistor_id")?.node?.value || null;
     openaiAssistantId = responseJson.data.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "openai_assistant_id")?.node?.value || null;
   } catch (error) {
-    console.error("Error fetching App installation id:", error);
+    console.error("Error fetching App initial installation id:", error);
   }
-  console.log("App Installation ID:", appInstallationId);
-  console.log("Assistor ID:", assistorId);
-  console.log("OpenAI Assistant ID:", openaiAssistantId);
-  //return json({ success: true, responseData: { assistorId, openaiAssistantId } });
-  
+  console.log("Initial App Installation ID:", appInstallationId);
+  console.log("Initial Assistor ID:", assistorId);
+  console.log("Initial OpenAI Assistant ID:", openaiAssistantId);
+ 
   // If assistorId exists, return it and skip the rest of the loader logic
   if (assistorId == null || assistorId === 'undefined') {
     //we initialize
     //first, get the assistorId and openaiAssistantId from the backend
     try {
-      const response = await fetch("https://assistor.online/version-test/api/1.1/wf/shopify-init", {
+      const response = await fetch("https://assistor.online/api/1.1/wf/shopify-init", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -121,7 +120,7 @@ export const loader = async ({ request }) => {
       );
 
       const responseJson = await response.json();
-      console.log("Metafields created:", responseJson);
+      console.log("Metafields created:", responseJson.data);
     } catch (error) {
       console.error("Error creating metafields:", error);
     }
@@ -130,24 +129,24 @@ export const loader = async ({ request }) => {
 
   let instructions = '';
 
-    try {
-      const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-          "OpenAI-Beta": "assistants=v1"
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch assistant data");
+  try {
+    const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "OpenAI-Beta": "assistants=v1"
       }
+    });
 
-      const data = await response.json();
-      instructions = data.instructions || '';
-    } catch (error) {
-      console.error("Error fetching assistant instructions:", error);
+    if (!response.ok) {
+      throw new Error("Failed to fetch assistant data");
     }
+
+    const data = await response.json();
+    instructions = data.instructions || '';
+  } catch (error) {
+    console.error("Error fetching assistant instructions:", error);
+  }
 
   return json({
     appInstallationId,
@@ -162,7 +161,7 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-if (intent === "updateInstructions") {
+  if (intent === "updateInstructions") {
     const openaiAssistantId = formData.get("openaiAssistantId");
     const instructions = formData.get("instructions");
 
@@ -235,6 +234,14 @@ export default function Index() {
                 autoComplete="off"
               />
             </div>
+            <PageActions
+              primaryAction={{
+                content: isSaving ? 'Saving...' : 'Save',
+                onAction: handleSaveInstructions,
+                disabled: isSaving,
+                loading: isSaving,
+              }}
+            />
           </Card>
         </Layout.Section>
         <Layout.Section>
@@ -288,14 +295,6 @@ export default function Index() {
           </Layout.Section>
         )}
       </Layout>
-      <PageActions
-        primaryAction={{
-          content: isSaving ? 'Saving...' : 'Save',
-          onAction: handleSaveInstructions,
-          disabled: isSaving,
-          loading: isSaving,
-        }}
-      />
     </Page>
   );
 }
