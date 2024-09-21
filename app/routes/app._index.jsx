@@ -278,21 +278,6 @@ export default function Index() {
             </Card>
           </Layout.Section>
         )}
-        {fetcher.data && (
-          <Layout.Section>
-            <Card sectioned>
-              <Text variant="headingMd" as="h2">
-                Save Instructions Response (Debug)
-              </Text>
-              <TextField
-                label="Response Data"
-                value={JSON.stringify(fetcher.data, null, 2)}
-                multiline={4}
-                readOnly
-              />
-            </Card>
-          </Layout.Section>
-        )}
       </Layout>
     </Page>
   );
