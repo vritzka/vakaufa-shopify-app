@@ -3,11 +3,11 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Assistor - ChatGPT Assistant"
 handle = "assistor"
-application_url = "https://rest-right-payments-knee.trycloudflare.com"
+application_url = "https://assistor-shopify.onrender.com"
 embedded = true
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
 dev_store_url = "assistor.myshopify.com"
 include_config_on_deploy = true
 
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://rest-right-payments-knee.trycloudflare.com/auth/callback",
-  "https://rest-right-payments-knee.trycloudflare.com/auth/shopify/callback",
-  "https://rest-right-payments-knee.trycloudflare.com/api/auth/callback"
+  "https://assistor-shopify.onrender.com/auth/callback",
+  "https://assistor-shopify.onrender.com/auth/shopify/callback",
+  "https://assistor-shopify.onrender.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -8,7 +8,6 @@ import {
   Text,
   TextField,
   PageActions,
-  Spinner,
   List,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
