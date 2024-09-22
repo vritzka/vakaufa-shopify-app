@@ -3,23 +3,23 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Assistor - ChatGPT Assistant"
 handle = "assistor"
-application_url = "https://assistor-app.onrender.com"
+application_url = "https://penguin-motherboard-consideration-designer.trycloudflare.com"
 embedded = true
 
 [build]
-automatically_update_urls_on_dev = false
+automatically_update_urls_on_dev = true
 dev_store_url = "assistor.myshopify.com"
 include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_metaobjects,write_metaobjects"
+scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://assistor-app.onrender.com/auth/callback",
-  "https://assistor-app.onrender.com/auth/shopify/callback",
-  "https://assistor-app.onrender.com/api/auth/callback"
+  "https://penguin-motherboard-consideration-designer.trycloudflare.com/auth/callback",
+  "https://penguin-motherboard-consideration-designer.trycloudflare.com/auth/shopify/callback",
+  "https://penguin-motherboard-consideration-designer.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
