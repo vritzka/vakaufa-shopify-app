@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Assistor - ChatGPT Assistant"
 handle = "assistor"
-application_url = "https://penguin-motherboard-consideration-designer.trycloudflare.com"
+application_url = "https://cluster-raw-mail-review.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://penguin-motherboard-consideration-designer.trycloudflare.com/auth/callback",
-  "https://penguin-motherboard-consideration-designer.trycloudflare.com/auth/shopify/callback",
-  "https://penguin-motherboard-consideration-designer.trycloudflare.com/api/auth/callback"
+  "https://cluster-raw-mail-review.trycloudflare.com/auth/callback",
+  "https://cluster-raw-mail-review.trycloudflare.com/auth/shopify/callback",
+  "https://cluster-raw-mail-review.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

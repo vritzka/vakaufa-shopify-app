@@ -11,47 +11,44 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useFetcher, useActionData  } from "@remix-run/react";
+import { json } from "@remix-run/node";
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
-  return null;
+  const { session } = await authenticate.admin(request);
+  return true;
 };
 
 export async function action({ request }) {
-  const { admin } = await authenticate.admin(request);
-  
-  const response = await admin.graphql(
-    `query {
-      products(first: 10) {
-        edges {
-          node {
-            id
-            title
-            description
-          }
-        }
-      }
-    }`
-  );
 
-  const { data } = await response.json();
-  return { products: data.products.edges.map(edge => edge.node) };
+  const { session } = await authenticate.admin(request);
+
+
+  return json({
+    jobId: "123",
+  });
+
 }
 
 export default function ProductTraining() {
-  const [products, setProducts] = useState([]);
+  const [jobStatus, setJobStatus] = useState(null);
+  const actionData = useActionData();
   const fetcher = useFetcher();
 
   useEffect(() => {
-    if (fetcher.data && fetcher.data.products) {
-      setProducts(fetcher.data.products);
-    }
-  }, [fetcher.data]);
+    if (actionData?.jobId) {
+      const intervalId = setInterval(async () => {
+        // Implement a function to check job status
+        const status = await checkJobStatus(actionData.jobId);
+        setJobStatus(status);
+        if (status === 'completed') {
+          clearInterval(intervalId);
+        }
+      }, 5000);
 
-  const fetchProducts = () => {
-    fetcher.submit(null, { method: "post" });
-  };
+      return () => clearInterval(intervalId);
+    }
+  }, [actionData]);
 
   return (
     <Page>
@@ -59,29 +56,32 @@ export default function ProductTraining() {
       <Layout>
         <Layout.Section>
           <Card>
-            <BlockStack gap="300">
-              <Text as="h2" variant="headingMd">
-                Fetch Products
+            <fetcher.Form method="post" action="/app/worker/start">
+              <Button submit primary>
+                Start Product Processing Job
+              </Button>
+            </fetcher.Form>
+            {fetcher.state === "submitting" && (
+              <Text variant="bodyMd" as="p">
+                Starting job...
               </Text>
-              <Button onClick={fetchProducts}>Fetch First 10 Products</Button>
-              {products.length > 0 && (
-                <Card>
-                  <BlockStack gap="200">
-                    <Text as="h3" variant="headingMd">
-                      Product Titles
-                    </Text>
-                    <List type="bullet">
-                      {products.map((product) => (
-                        <List.Item key={product.id}>{product.title}</List.Item>
-                      ))}
-                    </List>
-                  </BlockStack>
-                </Card>
-              )}
-            </BlockStack>
+            )}
+            {jobStatus && (
+              <Text variant="bodyMd" as="p">
+                Job Status: {jobStatus}
+              </Text>
+            )}
           </Card>
         </Layout.Section>
       </Layout>
     </Page>
   );
+}
+
+// Implement this function to check job status
+async function checkJobStatus(jobId) {
+  // You'll need to implement this based on how you're tracking job status
+  // This might involve making an API call to your server
+  // For now, we'll return a placeholder
+  return 'pending';
 }

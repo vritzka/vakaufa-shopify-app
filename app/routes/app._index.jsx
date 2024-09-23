@@ -15,6 +15,8 @@ import { authenticate } from "../shopify.server";
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
 
+  console.log(session);
+
   let assistorId = null;
   let openaiAssistantId = null;
   let appInstallationId = null;
@@ -47,7 +49,7 @@ export const loader = async ({ request }) => {
   console.log("Initial App Installation ID:", appInstallationId);
   console.log("Initial Assistor ID:", assistorId);
   console.log("Initial OpenAI Assistant ID:", openaiAssistantId);
- 
+
   // If assistorId exists, return it and skip the rest of the loader logic
   if (assistorId == null || assistorId === 'undefined') {
     //we initialize
@@ -222,11 +224,11 @@ export default function Index() {
         <Layout.Section>
           <Card sectioned>
             <Text variant="heading2xl" as="h1">
-              Training your Assistant
+              Your Chatbot
             </Text>
             <div style={{ marginTop: "20px" }}>
               <TextField
-                label="Assistant Instructions"
+                label="Tell your Chatbot it's character"
                 value={instructions}
                 onChange={(value) => setInstructions(value)}
                 multiline={10}
