@@ -12,6 +12,8 @@ import {
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
+const environment = process.env.ENVIRONMENT;
+
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
 
@@ -20,6 +22,7 @@ export const loader = async ({ request }) => {
   let assistorId = null;
   let openaiAssistantId = null;
   let appInstallationId = null;
+  let shopifyToken = null; 
   // get app installation
 
   try {
@@ -54,14 +57,20 @@ export const loader = async ({ request }) => {
   if (assistorId == null || assistorId === 'undefined') {
     //we initialize
     //first, get the assistorId and openaiAssistantId from the backend
+   const bubbleBackendUrl = environment === 'dev' ? 'https://assistor.online/version-test/api/1.1/wf/shopify-init' : 'https://assistor.online/api/1.1/wf/shopify-init';
     try {
-      const response = await fetch("https://assistor.online/api/1.1/wf/shopify-init", {
+
+      if (!session.accessToken) {
+        throw new Error("No token yet");
+      }
+
+      const response = await fetch(bubbleBackendUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${process.env.BUBBLE_API_KEY}`
         },
-        body: JSON.stringify({ shopify_domain: session.shop })
+        body: JSON.stringify({ shopify_domain: session.shop, shopify_token: session.accessToken })
       });
 
       const responseData = await response.json();
@@ -70,10 +79,9 @@ export const loader = async ({ request }) => {
       openaiAssistantId = responseData.response.openai_assistant_id;
 
       if (!response.ok) {
-        throw new Error("Failed to send data to backend");
+        throw new Error("Request failed with status " + response.status);
       }
 
-      //return json({ success: true, responseData });
     } catch (error) {
       console.error("Error sending data to backend:", error);
       return json({ success: false, error: error.message }, { status: 500 });
@@ -120,7 +128,6 @@ export const loader = async ({ request }) => {
         }
       );
 
-      const responseJson = await response.json();
       console.log("Metafields created:", responseJson.data);
     } catch (error) {
       console.error("Error creating metafields:", error);
@@ -140,13 +147,13 @@ export const loader = async ({ request }) => {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch assistant data");
+      throw new Error("Failed to fetch data: " + response.statusText);
     }
 
     const data = await response.json();
     instructions = data.instructions || '';
   } catch (error) {
-    console.error("Error fetching assistant instructions:", error);
+    console.error("Error fetching openAI assistant instructions:", error);
   }
 
   return json({
