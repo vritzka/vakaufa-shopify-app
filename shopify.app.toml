@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Assistor - ChatGPT Assistant"
 handle = "assistor"
-application_url = "https://belkin-cork-moderate-notebook.trycloudflare.com"
+application_url = "https://maintained-spain-johnson-que.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://belkin-cork-moderate-notebook.trycloudflare.com/auth/callback",
-  "https://belkin-cork-moderate-notebook.trycloudflare.com/auth/shopify/callback",
-  "https://belkin-cork-moderate-notebook.trycloudflare.com/api/auth/callback"
+  "https://maintained-spain-johnson-que.trycloudflare.com/auth/callback",
+  "https://maintained-spain-johnson-que.trycloudflare.com/auth/shopify/callback",
+  "https://maintained-spain-johnson-que.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

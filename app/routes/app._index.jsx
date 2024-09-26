@@ -1,6 +1,7 @@
 import { json } from "@remix-run/node";
+import { EmptyState } from '@shopify/polaris';
 import { useLoaderData, useSubmit, useActionData, useFetcher, redirect } from "@remix-run/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Page,
   Layout,
@@ -11,132 +12,36 @@ import {
   List,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-
-const environment = process.env.ENVIRONMENT;
+import { getAppData, initApp, updateAssistantInstructions } from "../utils/functions.server";
 
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
 
-  console.log(session);
-
   let assistorId = null;
   let openaiAssistantId = null;
   let appInstallationId = null;
-  let shopifyToken = null; 
-  // get app installation
+  let showInitButton = false;
+  let instructions = ''; 
 
-  try {
-    const response = await admin.graphql(
-      `query getAppInstallation{
-        currentAppInstallation {
-          id
-          metafields(first: 5) {  
-            edges {
-              node {
-                key
-                value
-              }
-            }
-          }
-        }
-      }`
-    );
-    const responseJson = await response.json();
+  const appData = await getAppData(admin);
 
-    appInstallationId = responseJson.data.currentAppInstallation.id;
-    assistorId = responseJson.data.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "assistor_id")?.node?.value || null;
-    openaiAssistantId = responseJson.data.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "openai_assistant_id")?.node?.value || null;
-  } catch (error) {
-    console.error("Error fetching App initial installation id:", error);
-  }
-  console.log("Initial App Installation ID:", appInstallationId);
-  console.log("Initial Assistor ID:", assistorId);
-  console.log("Initial OpenAI Assistant ID:", openaiAssistantId);
+  if (!appData || appData.currentAppInstallation.metafields.edges.length == 0) {
+    showInitButton = true;
+    return json({
+      appInstallationId,
+      assistorId,
+      openaiAssistantId,
+      instructions,
+      showInitButton
+    });
 
-  // If assistorId exists, return it and skip the rest of the loader logic
-  if (assistorId == null || assistorId === 'undefined') {
-    //we initialize
-    //first, get the assistorId and openaiAssistantId from the backend
-   const bubbleBackendUrl = environment === 'dev' ? 'https://assistor.online/version-test/api/1.1/wf/shopify-init' : 'https://assistor.online/api/1.1/wf/shopify-init';
-    try {
-
-      if (!session.accessToken) {
-        throw new Error("No token yet");
-      }
-
-      const response = await fetch(bubbleBackendUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.BUBBLE_API_KEY}`
-        },
-        body: JSON.stringify({ shopify_domain: session.shop, shopify_token: session.accessToken })
-      });
-
-      const responseData = await response.json();
-
-      assistorId = responseData.response.assistor_id;
-      openaiAssistantId = responseData.response.openai_assistant_id;
-
-      if (!response.ok) {
-        throw new Error("Request failed with status " + response.status);
-      }
-
-    } catch (error) {
-      console.error("Error sending data to backend:", error);
-      return json({ success: false, error: error.message }, { status: 500 });
-    }
-    console.log("Assistor ID:", assistorId);
-    console.log("OpenAI Assistant ID:", openaiAssistantId);
-
-    // Create 2 app-only metafields
-    try {
-      const response = await admin.graphql(
-        `mutation CreateAppDataMetafield($metafieldsSetInput: [MetafieldsSetInput!]!) {
-          metafieldsSet(metafields: $metafieldsSetInput) {
-            metafields {
-              id
-              namespace
-              key
-              value
-            }
-            userErrors {
-              field
-              message
-            }
-          }
-        }`,
-        {
-          variables: {
-            metafieldsSetInput: [
-              {
-                namespace: "assistor",
-                key: "assistor_id",
-                type: "single_line_text_field",
-                value: assistorId,
-                ownerId: appInstallationId
-              },
-              {
-                namespace: "assistor",
-                key: "openai_assistant_id",
-                type: "single_line_text_field",
-                value: openaiAssistantId,
-                ownerId: appInstallationId
-              }
-            ]
-          }
-        }
-      );
-
-      console.log("Metafields created:", responseJson.data);
-    } catch (error) {
-      console.error("Error creating metafields:", error);
-    }
-
+  } else {
+    appInstallationId = appData.currentAppInstallation.id;
+    assistorId = appData.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "assistor_id")?.node?.value || null;
+    openaiAssistantId = appData.currentAppInstallation.metafields.edges.find(edge => edge.node?.key === "openai_assistant_id")?.node?.value || null;
   }
 
-  let instructions = '';
-
+  //if app is not new, we fetch the instructions from the openai assistant
   try {
     const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
       method: "GET",
@@ -160,67 +65,62 @@ export const loader = async ({ request }) => {
     appInstallationId,
     assistorId,
     openaiAssistantId,
-    instructions
+    instructions,
+    showInitButton
   });
 };
 
 export const action = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
+
+  if (intent === "initialize") {
+    const response = await initApp(session, admin);
+    const initData = await response.json();
+
+   // console.log("Initdata", initData);
+    return json({ 
+      instructions: initData.data.instructions,
+      appInstallationId: initData.data.appInstallationId,
+      assistorId: initData.data.assistorId,
+      openaiAssistantId: initData.data.openaiAssistantId,
+      showInitButton: false
+    });
+  }
 
   if (intent === "updateInstructions") {
     const openaiAssistantId = formData.get("openaiAssistantId");
     const instructions = formData.get("instructions");
 
-    try {
-      const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-          "OpenAI-Beta": "assistants=v1"
-        },
-        body: JSON.stringify({ instructions })
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update assistant instructions");
-      }
-
-      const updatedAssistant = await response.json();
-      return json({ success: true, updatedAssistant });
-    } catch (error) {
-      console.error("Error updating assistant instructions:", error);
-      return json({ success: false, error: error.message }, { status: 500 });
-    }
+    const res = await updateAssistantInstructions(openaiAssistantId, instructions);
+    const updatedAssistant = await res.json();
+    return json({ success: true, updatedAssistant });
   }
-
-  return json({ error: "Invalid intent" }, { status: 400 });
-};
+}
 
 export default function Index() {
-  const { shop, appInstallationId, assistorId: initialAssistorId, openaiAssistantId: initialOpenaiAssistantId, instructions: initialInstructions } = useLoaderData();
+  const loaderData = useLoaderData();
   const actionData = useActionData();
-  const [instructions, setInstructions] = useState(initialInstructions);
   const submit = useSubmit();
   const fetcher = useFetcher();
 
-  const [assistorId, setAssistorId] = useState(initialAssistorId || '');
-  const [openaiAssistantId, setOpenaiAssistantId] = useState(initialOpenaiAssistantId || '');
-  const [isSaving, setIsSaving] = useState(false);
+  console.log("Component rendered. Loader Data:", loaderData);
+  console.log("Component rendered. Action Data:", actionData);
 
-  useEffect(() => {
-    if (fetcher.state === 'submitting') {
-      setIsSaving(true);
-    } else if (fetcher.state === 'idle') {
-      setIsSaving(false);
-    }
-  }, [fetcher.state]);
+  const [instructions, setInstructions] = useState(
+    actionData?.instructions || loaderData.instructions
+  );
+
+  const handleInstructionsChange = (value) => {
+    setInstructions(value);
+  };
+
+  const isSaving = fetcher.state === 'submitting';
 
   const handleSaveInstructions = () => {
     fetcher.submit(
-      { intent: "updateInstructions", openaiAssistantId, instructions },
+      { intent: "updateInstructions", openaiAssistantId: loaderData.openaiAssistantId, instructions },
       { method: "post" }
     );
   };
@@ -228,17 +128,38 @@ export default function Index() {
   return (
     <Page>
       <Layout>
+        {loaderData.showInitButton && (
+          <Layout.Section>
+            <Card sectioned>
+              <EmptyState
+                heading="Initialize your Chatbot"
+                action={{
+                  content: 'Initialize',
+                  onAction: () => {
+                    fetcher.submit(
+                    { intent: 'initialize' },
+                    { method: 'post' }
+                  )}
+                }}
+                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+              >
+                <p></p>
+              </EmptyState>
+            </Card>
+          </Layout.Section>
+        )}
+        {!loaderData.showInitButton && (
+          <>
         <Layout.Section>
           <Card sectioned>
             <Text variant="heading2xl" as="h1">
-              Your Chatbot
+              Your Chatbot's Character
             </Text>
             <div style={{ marginTop: "20px" }}>
               <TextField
-                label="Tell your Chatbot it's character"
                 value={instructions}
-                onChange={(value) => setInstructions(value)}
                 multiline={10}
+                onChange={handleInstructionsChange}
                 autoComplete="off"
               />
             </div>
@@ -270,6 +191,8 @@ export default function Index() {
             </Text>
           </Card>
         </Layout.Section>
+        </>
+         )}
         {actionData && (
           <Layout.Section>
             <Card sectioned>

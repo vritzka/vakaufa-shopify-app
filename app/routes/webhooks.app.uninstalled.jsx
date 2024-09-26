@@ -9,7 +9,7 @@ export const action = async ({ request }) => {
   // Webhook requests can trigger multiple times and after an app has already been uninstalled.
   // If this webhook already ran, the session may have been deleted previously.
   if (session) {
-
+      return json({ success: true }, { status: 200, body: "done" });
       //delete backend data
       try {
         const response = await fetch("https://assistor.online/api/1.1/wf/shopify-deinit", {
