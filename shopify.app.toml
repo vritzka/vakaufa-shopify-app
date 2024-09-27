@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "01660e1e156a13fafba99f4848fff302"
-name = "Assistor - ChatGPT Assistant"
-handle = "assistor"
-application_url = "https://maintained-spain-johnson-que.trycloudflare.com"
+name = "The Verkaufer - AI Salesclerk"
+handle = "the-verkaufer"
+application_url = "https://attractive-strong-obvious-incidence.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://maintained-spain-johnson-que.trycloudflare.com/auth/callback",
-  "https://maintained-spain-johnson-que.trycloudflare.com/auth/shopify/callback",
-  "https://maintained-spain-johnson-que.trycloudflare.com/api/auth/callback"
+  "https://attractive-strong-obvious-incidence.trycloudflare.com/auth/callback",
+  "https://attractive-strong-obvious-incidence.trycloudflare.com/auth/shopify/callback",
+  "https://attractive-strong-obvious-incidence.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -1,4 +1,3 @@
-
 import { json } from "@remix-run/node";
 const environment = process.env.ENVIRONMENT;
 
@@ -98,11 +97,13 @@ export async function initApp(session, admin) {
     }
       
     //populate an initial set of instructions into chatGPT
-    let instructions = "You are a helpful assistant on an eCommerce website\n";
-    instructions += "A description of the website is " + shopInfo.shop.description + " URL is " + shopInfo.shop.url+"\n";
-    instructions += "You can help with product recommendations, answer questions about shipping and returns, and provide general information about the store. Remember to be patient and understanding, as some customers may need extra guidance. Always maintain a positive and professional tone in your interactions\n";
-    instructions += "You introduce yourself as AI Salesclerk\n"
-    instructions += "An important role is to help people find the right products. To find out what they want, you ask some questions first: What skill level are you?\n"
+    let instructions = `You are a helpful assistant on an eCommerce website
+The website is about ${shopInfo.shop.description || 'Not available'}
+The URL is ${shopInfo.shop.url || 'Not available'}.
+You can help with product recommendations, answer questions about shipping and returns, and provide general information about the store.
+Remember to be patient and understanding, as some customers may need extra guidance. Always maintain a positive and professional tone in your interactions
+You introduce yourself as AI Salesclerk.
+An important role is to help people find the right products. To find out what they want, you ask some questions first: What skill level are you?`;
 
     try {
       const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {

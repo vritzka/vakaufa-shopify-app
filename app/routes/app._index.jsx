@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node";
 import { EmptyState } from '@shopify/polaris';
-import { useLoaderData, useSubmit, useActionData, useFetcher, redirect } from "@remix-run/react";
-import { useState } from "react";
+import { useLoaderData, useSubmit, useActionData, useFetcher } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import {
   Page,
   Layout,
@@ -21,7 +21,7 @@ export const loader = async ({ request }) => {
   let openaiAssistantId = null;
   let appInstallationId = null;
   let showInitButton = false;
-  let instructions = ''; 
+  let instructions = '';
 
   const appData = await getAppData(admin);
 
@@ -76,17 +76,19 @@ export const action = async ({ request }) => {
   const intent = formData.get("intent");
 
   if (intent === "initialize") {
+
     const response = await initApp(session, admin);
     const initData = await response.json();
 
-   // console.log("Initdata", initData);
-    return json({ 
-      instructions: initData.data.instructions,
+    return json({
+      ok: true,
       appInstallationId: initData.data.appInstallationId,
       assistorId: initData.data.assistorId,
       openaiAssistantId: initData.data.openaiAssistantId,
+      instructions: initData.data.instructions,
       showInitButton: false
     });
+
   }
 
   if (intent === "updateInstructions") {
@@ -100,21 +102,36 @@ export const action = async ({ request }) => {
 }
 
 export default function Index() {
+  const fetcher = useFetcher();
   const loaderData = useLoaderData();
   const actionData = useActionData();
-  const submit = useSubmit();
-  const fetcher = useFetcher();
-
-  console.log("Component rendered. Loader Data:", loaderData);
-  console.log("Component rendered. Action Data:", actionData);
 
   const [instructions, setInstructions] = useState(
-    actionData?.instructions || loaderData.instructions
+    fetcher.data?.instructions || loaderData.instructions
   );
+
+  useEffect(() => {
+    if (fetcher.data?.instructions) {
+      setInstructions(fetcher.data.instructions);
+    }
+  }, [fetcher.data]);
+
+  useEffect(() => {
+    setInstructions(loaderData.instructions);
+  }, [loaderData.instructions]);
+
+  const handleInitialize = () => {
+    fetcher.submit(
+      { intent: 'initialize' },
+      { method: 'post' }
+    );
+  };
+
 
   const handleInstructionsChange = (value) => {
     setInstructions(value);
   };
+
 
   const isSaving = fetcher.state === 'submitting';
 
@@ -125,16 +142,19 @@ export default function Index() {
     );
   };
 
+
   return (
     <Page>
       <Layout>
         {loaderData.showInitButton && (
           <Layout.Section>
             <Card sectioned>
-              <EmptyState
-                heading="Initialize your Chatbot"
+            <EmptyState
+                heading="Start your Verkaufer"
                 action={{
-                  content: 'Initialize',
+                  content: 'Start',
+                  disabled: isSaving,
+                  loading: isSaving,
                   onAction: () => {
                     fetcher.submit(
                     { intent: 'initialize' },
@@ -150,49 +170,53 @@ export default function Index() {
         )}
         {!loaderData.showInitButton && (
           <>
-        <Layout.Section>
-          <Card sectioned>
-            <Text variant="heading2xl" as="h1">
-              Your Chatbot's Character
-            </Text>
-            <div style={{ marginTop: "20px" }}>
-              <TextField
-                value={instructions}
-                multiline={10}
-                onChange={handleInstructionsChange}
-                autoComplete="off"
-              />
-            </div>
-            <PageActions
-              primaryAction={{
-                content: isSaving ? 'Saving...' : 'Save',
-                onAction: handleSaveInstructions,
-                disabled: isSaving,
-                loading: isSaving,
-              }}
-            />
-          </Card>
-        </Layout.Section>
-        <Layout.Section>
-          <Card sectioned>
-            <Text variant="headingMd" as="h2">
-              Tips for Training Your Assistant
-            </Text>
-            <List type="bullet">
-              <List.Item>Be clear and specific in your instructions</List.Item>
-              <List.Item>Include examples of desired responses</List.Item>
-              <List.Item>Specify the tone and style you want the assistant to use</List.Item>
-              <List.Item>Define any limitations or boundaries for the assistant</List.Item>
-              <List.Item>Update instructions as you refine your requirements</List.Item>
-            </List>
-            <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-              Remember, the quality of your instructions directly impacts the performance of your AI assistant.
-              Regularly review and refine these instructions based on your interactions and needs.
-            </Text>
-          </Card>
-        </Layout.Section>
-        </>
-         )}
+            <Layout.Section>
+              <Card sectioned>
+                <Text variant="heading2xl" as="h1">
+                  Your Verkaufer's Character
+                </Text>
+                <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
+                  Here you can give your Verkaufer (AI Bot) instructions on how to behave. Write intuitively as you would talk to another human. And the more specific you are, the better. 
+                </Text>
+                <div style={{ marginTop: "20px" }}>
+                  <TextField
+                    disabled={isSaving}
+                    value={instructions}
+                    multiline={10}
+                    onChange={handleInstructionsChange}
+                    autoComplete="off"
+                  />
+                </div>
+                <PageActions
+                  primaryAction={{
+                    content: isSaving ? 'Saving...' : 'Save',
+                    onAction: handleSaveInstructions,
+                    disabled: isSaving,
+                    loading: isSaving,
+                  }}
+                />
+              </Card>
+            </Layout.Section>
+            <Layout.Section>
+              <Card sectioned>
+                <Text variant="headingMd" as="h2">
+                  Tips for Training Your Assistant
+                </Text>
+                <List type="bullet">
+                  <List.Item>Be clear and specific in your instructions</List.Item>
+                  <List.Item>Include examples of desired responses</List.Item>
+                  <List.Item>Specify the tone and style you want the assistant to use</List.Item>
+                  <List.Item>Define any limitations or boundaries for the assistant</List.Item>
+                  <List.Item>Update instructions as you refine your requirements</List.Item>
+                </List>
+                <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
+                  Remember, the quality of your instructions directly impacts the performance of your AI assistant.
+                  Regularly review and refine these instructions based on your interactions and needs.
+                </Text>
+              </Card>
+            </Layout.Section>
+          </>
+        )}
         {actionData && (
           <Layout.Section>
             <Card sectioned>
