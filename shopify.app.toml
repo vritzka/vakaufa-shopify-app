@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "The Verkaufer"
 handle = "the-verkaufer"
-application_url = "https://switched-triangle-imperial-terminology.trycloudflare.com"
+application_url = "https://assistor-app.onrender.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://switched-triangle-imperial-terminology.trycloudflare.com/auth/callback",
-  "https://switched-triangle-imperial-terminology.trycloudflare.com/auth/shopify/callback",
-  "https://switched-triangle-imperial-terminology.trycloudflare.com/api/auth/callback"
+  "https://assistor-app.onrender.com/auth/callback",
+  "https://assistor-app.onrender.com/auth/shopify/callback",
+  "https://assistor-app.onrender.com/api/auth/callback"
 ]
 
 [webhooks]
