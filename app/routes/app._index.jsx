@@ -1,6 +1,7 @@
 import { json } from "@remix-run/node";
-import { EmptyState } from '@shopify/polaris';
-import { useLoaderData, useSubmit, useActionData, useFetcher } from "@remix-run/react";
+import { EmptyState, BlockStack, InlineGrid, Button } from '@shopify/polaris';
+import { PlusIcon } from '@shopify/polaris-icons';
+import { useLoaderData, useActionData, useFetcher } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import {
   Page,
@@ -9,10 +10,9 @@ import {
   Text,
   TextField,
   PageActions,
-  List,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-import { getAppData, initApp, updateAssistantInstructions } from "../utils/functions.server";
+import { getAppData, initApp, updateAssistantInstructions, runProductTraining, getProductEmbeddingsCount } from "../utils/functions.server.js";
 
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
@@ -32,7 +32,7 @@ export const loader = async ({ request }) => {
       assistorId,
       openaiAssistantId,
       instructions,
-      showInitButton
+      showInitButton,
     });
 
   } else {
@@ -61,12 +61,15 @@ export const loader = async ({ request }) => {
     console.error("Error fetching openAI assistant instructions:", error);
   }
 
+  const productEmbeddingsCount = await getProductEmbeddingsCount(session);
+
   return json({
     appInstallationId,
     assistorId,
     openaiAssistantId,
     instructions,
-    showInitButton
+    showInitButton,
+    productEmbeddingsCount
   });
 };
 
@@ -82,7 +85,6 @@ export const action = async ({ request }) => {
 
     return json({
       ok: true,
-      appInstallationId: initData.data.appInstallationId,
       assistorId: initData.data.assistorId,
       openaiAssistantId: initData.data.openaiAssistantId,
       instructions: initData.data.instructions,
@@ -99,12 +101,21 @@ export const action = async ({ request }) => {
     const updatedAssistant = await res.json();
     return json({ success: true, updatedAssistant });
   }
+
+  if (intent === "productTraining") {
+    console.log("productTraining");
+    const res = await runProductTraining(session, admin);
+    const productTraining = await res.json();
+    return json({ success: true, productTraining });
+  }
 }
 
 export default function Index() {
   const fetcher = useFetcher();
   const loaderData = useLoaderData();
   const actionData = useActionData();
+
+  const isSaving = fetcher.state === 'submitting';
 
   const [instructions, setInstructions] = useState(
     fetcher.data?.instructions || loaderData.instructions
@@ -127,13 +138,9 @@ export default function Index() {
     );
   };
 
-
   const handleInstructionsChange = (value) => {
     setInstructions(value);
   };
-
-
-  const isSaving = fetcher.state === 'submitting';
 
   const handleSaveInstructions = () => {
     fetcher.submit(
@@ -142,14 +149,25 @@ export default function Index() {
     );
   };
 
+  const handleClickPreview = () => {
+    const url = loaderData.environment === "production" ? "https://streamlit-app-i5dp.onrender.com" : "http://localhost:8501";
+    window.open(`${url}/?id=${loaderData.assistorId}`, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <Page>
       <Layout>
+        <ui-title-bar title="Verkaufer">
+        {!loaderData.showInitButton && (
+          <button variant="primary" onClick={handleClickPreview}>
+            Vorschau
+          </button>
+        )}
+        </ui-title-bar>
         {loaderData.showInitButton && (
           <Layout.Section>
             <Card sectioned>
-            <EmptyState
+              <EmptyState
                 heading="Start your Verkaufer"
                 action={{
                   content: 'Start',
@@ -157,9 +175,10 @@ export default function Index() {
                   loading: isSaving,
                   onAction: () => {
                     fetcher.submit(
-                    { intent: 'initialize' },
-                    { method: 'post' }
-                  )}
+                      { intent: 'initialize' },
+                      { method: 'post' }
+                    )
+                  }
                 }}
                 image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
               >
@@ -171,12 +190,12 @@ export default function Index() {
         {!loaderData.showInitButton && (
           <>
             <Layout.Section>
-              <Card sectioned>
+              <Card sectioned w>
                 <Text variant="heading2xl" as="h1">
                   Your Verkaufer's Character
                 </Text>
                 <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-                  Here you can give your Verkaufer (AI Bot) instructions on how to behave. Write intuitively as you would talk to another human. And the more specific you are, the better. 
+                  Here you can give your Verkaufer (AI Bot) instructions on how to behave. Write intuitively as you would talk to another human. And the more specific you are, the better.
                 </Text>
                 <div style={{ marginTop: "20px" }}>
                   <TextField
@@ -198,43 +217,54 @@ export default function Index() {
               </Card>
             </Layout.Section>
             <Layout.Section>
-              <Card sectioned>
-                <Text variant="headingMd" as="h2">
-                  Tips for Training Your Assistant
-                </Text>
-                <List type="bullet">
-                  <List.Item>Be clear and specific in your instructions</List.Item>
-                  <List.Item>Include examples of desired responses</List.Item>
-                  <List.Item>Specify the tone and style you want the assistant to use</List.Item>
-                  <List.Item>Define any limitations or boundaries for the assistant</List.Item>
-                  <List.Item>Update instructions as you refine your requirements</List.Item>
-                </List>
-                <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-                  Remember, the quality of your instructions directly impacts the performance of your AI assistant.
-                  Regularly review and refine these instructions based on your interactions and needs.
-                </Text>
-              </Card>
+              <CardWithHeaderActions />
             </Layout.Section>
           </>
         )}
-        {actionData && (
-          <Layout.Section>
-            <Card sectioned>
-              <Text variant="headingMd" as="h2">
-                Webhook Response (Debug)
-              </Text>
-              <TextField
-                label="Response Data"
-                value={JSON.stringify(actionData, null, 2)}
-                multiline={4}
-                readOnly
-              />
-              <Text variant="bodyMd">Assistor ID: {assistorId}</Text>
-              <Text variant="bodyMd">OpenAI Assistant ID: {openaiAssistantId}</Text>
-            </Card>
-          </Layout.Section>
-        )}
       </Layout>
     </Page>
+  );
+}
+
+function CardWithHeaderActions() {
+
+  const fetcher = useFetcher();
+  const { productEmbeddingsCount } = useLoaderData();
+  const actionData = useActionData();
+
+  const isSaving = fetcher.state === 'submitting';
+
+  const handleProductTraining = () => {
+    fetcher.submit(
+      { intent: "productTraining" },
+      { method: "post" }
+    );
+  };
+
+  return (
+    <Card roundedAbove="sm">
+      <BlockStack gap="200">
+        <InlineGrid columns="1fr auto">
+          <Text as="h2" variant="headingLg">
+            Produktlernen
+          </Text>
+          <Button
+            onClick={handleProductTraining}
+            accessibilityLabel="Jetzt lernen"
+            disabled={isSaving}
+            loading={isSaving}
+            icon={PlusIcon}
+          >
+            Starten
+          </Button>
+        </InlineGrid>
+        <Text as="p" variant="bodyMd">
+          Einmal Produkte lernen, um sie später den richtigen Kunden zu empfehlen. Vorgang dauert eine Weile.
+        </Text>
+        <Text as="p" variant="bodyMd">
+          {productEmbeddingsCount} Produkte gelernt.
+        </Text>
+      </BlockStack>
+    </Card>
   );
 }

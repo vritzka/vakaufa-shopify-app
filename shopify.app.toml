@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "01660e1e156a13fafba99f4848fff302"
-name = "The Verkaufer - AI Salesclerk"
+name = "The Verkaufer"
 handle = "the-verkaufer"
-application_url = "https://attractive-strong-obvious-incidence.trycloudflare.com"
+application_url = "https://switched-triangle-imperial-terminology.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://attractive-strong-obvious-incidence.trycloudflare.com/auth/callback",
-  "https://attractive-strong-obvious-incidence.trycloudflare.com/auth/shopify/callback",
-  "https://attractive-strong-obvious-incidence.trycloudflare.com/api/auth/callback"
+  "https://switched-triangle-imperial-terminology.trycloudflare.com/auth/callback",
+  "https://switched-triangle-imperial-terminology.trycloudflare.com/auth/shopify/callback",
+  "https://switched-triangle-imperial-terminology.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

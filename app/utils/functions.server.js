@@ -1,5 +1,30 @@
 import { json } from "@remix-run/node";
+// Import AWS SDK if not already imported at the top of the file
+import AWS from 'aws-sdk';
+import OpenAI from 'openai';
+
 const environment = process.env.ENVIRONMENT;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+import { Pinecone } from '@pinecone-database/pinecone';
+const pc = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY
+});
+
+const pinecondeIndex = pc.index('vakaufer');
+
+// Configure AWS SDK
+AWS.config.update({
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+});
+
+// Create Lambda client
+const lambda = new AWS.Lambda();
 
 export async function initApp(session, admin) {
 
@@ -95,7 +120,7 @@ export async function initApp(session, admin) {
     } catch (error) {
       console.error("Error creating metafields:", error);
     }
-      
+
     //populate an initial set of instructions into chatGPT
     let instructions = `You are a helpful assistant on an eCommerce website
 The website is about ${shopInfo.shop.description || 'Not available'}
@@ -105,38 +130,56 @@ Remember to be patient and understanding, as some customers may need extra guida
 You introduce yourself as AI Salesclerk.
 An important role is to help people find the right products. To find out what they want, you ask some questions first: What skill level are you?`;
 
+
     try {
-      const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-          "OpenAI-Beta": "assistants=v1"
-        },
-        body: JSON.stringify({ instructions })
-      });
+      const assistant = await openai.beta.assistants.update(
+        openaiAssistantId,
+        {
+          instructions: instructions,
+          tools: [
+            {
+              type: "function",
+              function: {
+                "name": "get_recommended_products",
+                "description": "Recommend the right products for a customer",
+                "strict": true,
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "customer_product_description": {
+                      "type": "string",
+                      "description": "Description of what the customer is looking for."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "customer_product_description"
+                  ]
+                }
+              },
+            },
+          ],
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to update assistant instructions");
-      }
-
+      console.log('Assistant updated:', assistant);
+      // Handle the response as needed
     } catch (error) {
-      console.error("Error updating assistant instructions:", error);
-      return json({ success: false, error: error.message }, { status: 500 });
+      console.error('Error updating assistant:', error);
+      // Handle any errors
     }
 
-    return json({ success: true, data: {
-      assistorId: assistorId, 
-      openaiAssistantId: openaiAssistantId, 
-      instructions
-    }}, { status: 200 });
+    return json({
+      success: true, data: {
+        assistorId: assistorId,
+        openaiAssistantId: openaiAssistantId,
+        instructions
+      }
+    }, { status: 200 });
 
 
   }
 }
-
-
-
 //this checks if this app was installed before and fetches the data from the metafields
 export async function getAppData(admin) {
 
@@ -162,10 +205,9 @@ export async function getAppData(admin) {
     return { currentAppInstallation: responseJson.data.currentAppInstallation };
 
   } catch (error) {
-    console.error("Error fetching App data:", error);
+    //console.error("Error fetching App data:", error);
   }
 }
-
 async function getShopInfo(admin) {
 
   try {
@@ -192,7 +234,6 @@ async function getShopInfo(admin) {
     console.error("Error fetching Shop Info:", error);
   }
 }
-
 //this updates our openai assistant viw thei API
 export async function updateAssistantInstructions(openaiAssistantId, instructions) {
 
@@ -217,5 +258,62 @@ export async function updateAssistantInstructions(openaiAssistantId, instruction
     console.error("Error updating assistant instructions:", error);
     return json({ success: false, error: error.message }, { status: 500 });
   }
+
+}
+
+export async function runProductTraining(shop, admin) {
+
+  console.log("running product training");
+
+  try {
+    // Set up parameters for Lambda function invocation
+    const params = {
+      FunctionName: 'createEmbeddings',
+      InvocationType: 'RequestResponse',
+      Payload: JSON.stringify({
+        shopify_token: shop.accessToken,
+        shop: shop.shop
+      })
+    };
+
+    console.log("params:", params);
+
+    // Invoke Lambda function
+    const result = await new Promise((resolve, reject) => {
+      lambda.invoke(params, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
+
+    // Process the result
+    const payload = await JSON.parse(result.Payload);
+
+    console.log("payload:", payload);
+
+    if (payload.statusCode === 200) {
+      return json({ success: true, data: payload.body });
+    } else {
+      throw new Error(payload.body || 'Lambda function execution failed');
+    }
+
+  } catch (error) {
+    console.error("Error running product training:", error);
+    return json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function getProductEmbeddingsCount(session) {
+
+  //we also check how many product embeddings are saved in Pinecode
+  const countResponse = await pinecondeIndex.namespace(session.shop).describeIndexStats();
+  //console.log("countResponse:", countResponse);
+  const vectorCount = countResponse.totalRecordCount;
+  // console.log("vectorCount:", vectorCount);
+
+  return vectorCount;
 
 }
