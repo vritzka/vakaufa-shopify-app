@@ -1,4 +1,5 @@
 import { json } from "@remix-run/node";
+import { URL } from "url";
 import { EmptyState, BlockStack, InlineGrid, Button } from '@shopify/polaris';
 import { PlusIcon } from '@shopify/polaris-icons';
 import { useLoaderData, useActionData, useFetcher } from "@remix-run/react";
@@ -18,7 +19,10 @@ import { getAppData, initApp, updateAssistantInstructions, runProductTraining, g
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
 
-  console.log(session);
+  const url = request.url;
+  const parsedUrl = new URL(url);
+  const searchParams = parsedUrl.searchParams;
+  const locale = searchParams.get('locale').slice(0, 2);
 
   let assistorId = null;
   let openaiAssistantId = null;
@@ -36,6 +40,7 @@ export const loader = async ({ request }) => {
       openaiAssistantId,
       instructions,
       showInitButton,
+      locale
     });
 
   } else {
@@ -78,6 +83,11 @@ export const loader = async ({ request }) => {
 
 export const action = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
+  const url = request.url;
+  const parsedUrl = new URL(url);
+  const searchParams = parsedUrl.searchParams;
+  const locale = searchParams.get('locale').slice(0, 2);
+
   const formData = await request.formData();
   const intent = formData.get("intent");
 
@@ -91,9 +101,9 @@ export const action = async ({ request }) => {
       assistorId: initData.data.assistorId,
       openaiAssistantId: initData.data.openaiAssistantId,
       instructions: initData.data.instructions,
-      showInitButton: false
+      showInitButton: false,
+      locale
     });
-
   }
 
   if (intent === "updateInstructions") {
@@ -160,7 +170,7 @@ export default function Index() {
   return (
     <Page>
       <Layout>
-        <ui-title-bar title="Vakaufa">
+        <ui-title-bar title="Dashboard">
           {!loaderData.showInitButton && (
             <button variant="primary" onClick={handleClickPreview}>
               Preview
