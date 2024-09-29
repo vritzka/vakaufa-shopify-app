@@ -29,6 +29,7 @@ export const loader = async ({ request }) => {
   let appInstallationId = null;
   let showInitButton = false;
   let instructions = '';
+  const environment = process.env.NODE_ENV;
 
   const appData = await getAppData(admin);
 
@@ -40,7 +41,8 @@ export const loader = async ({ request }) => {
       openaiAssistantId,
       instructions,
       showInitButton,
-      locale
+      locale,
+      environment
     });
 
   } else {
@@ -77,7 +79,9 @@ export const loader = async ({ request }) => {
     openaiAssistantId,
     instructions,
     showInitButton,
-    productEmbeddingsCount
+    productEmbeddingsCount,
+    locale,
+    environment
   });
 };
 

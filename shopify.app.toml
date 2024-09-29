@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Vakaufa"
 handle = "vakaufa"
-application_url = "https://assistor-app.onrender.com"
+application_url = "https://presentations-reproduce-retro-sic.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://assistor-app.onrender.com/auth/callback",
-  "https://assistor-app.onrender.com/auth/shopify/callback",
-  "https://assistor-app.onrender.com/api/auth/callback"
+  "https://presentations-reproduce-retro-sic.trycloudflare.com/auth/callback",
+  "https://presentations-reproduce-retro-sic.trycloudflare.com/auth/shopify/callback",
+  "https://presentations-reproduce-retro-sic.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
