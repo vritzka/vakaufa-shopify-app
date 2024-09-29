@@ -1,7 +1,7 @@
 # Assistor Shopify App
 
 ## Overview
-Assistor is our internal Shopify app that [brief description of what the app does].
+Verkaufer is our internal Shopify app that [brief description of what the app does].
 
 ## Setup
 1. Clone the repo
@@ -11,10 +11,6 @@ Assistor is our internal Shopify app that [brief description of what the app doe
 
 ## Configuration
 `.env` file contents:
-
-SHOPIFY_API_KEY=your_api_key
-SHOPIFY_API_SECRET=your_api_secret
-SCOPES=read_products,write_products,read_orders,write_orders,read_customers,write_customers,read_metafields,write_metafields
 
 ## Key Features
 - [Feature 1]

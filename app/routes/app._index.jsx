@@ -157,18 +157,18 @@ export default function Index() {
   return (
     <Page>
       <Layout>
-        <ui-title-bar title="Verkaufer">
-        {!loaderData.showInitButton && (
-          <button variant="primary" onClick={handleClickPreview}>
-            Vorschau
-          </button>
-        )}
+        <ui-title-bar title="Vakaufa">
+          {!loaderData.showInitButton && (
+            <button variant="primary" onClick={handleClickPreview}>
+              Vorschau
+            </button>
+          )}
         </ui-title-bar>
         {loaderData.showInitButton && (
           <Layout.Section>
             <Card sectioned>
               <EmptyState
-                heading="Start your Verkaufer"
+                heading="Start your Vakaufa"
                 action={{
                   content: 'Start',
                   disabled: isSaving,
@@ -190,12 +190,12 @@ export default function Index() {
         {!loaderData.showInitButton && (
           <>
             <Layout.Section>
-              <Card sectioned w>
-                <Text variant="heading2xl" as="h1">
-                  Your Verkaufer's Character
+              <Card sectioned>
+                <Text as="h2" variant="headingLg">
+                  Character
                 </Text>
                 <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-                  Here you can give your Verkaufer (AI Bot) instructions on how to behave. Write intuitively as you would talk to another human. And the more specific you are, the better.
+                  Here you can give your Vakaufa (AI Bot) instructions on how to behave. Write intuitively as you would talk to another human. And the more specific you are, the better.
                 </Text>
                 <div style={{ marginTop: "20px" }}>
                   <TextField
