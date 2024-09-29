@@ -18,6 +18,8 @@ import { getAppData, initApp, updateAssistantInstructions, runProductTraining, g
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
 
+  console.log(session);
+
   let assistorId = null;
   let openaiAssistantId = null;
   let appInstallationId = null;
@@ -257,7 +259,7 @@ function CardWithHeaderActions() {
             loading={isSaving}
             icon={PlusIcon}
           >
-            Starten
+            Start
           </Button>
         </InlineGrid>
         <Text as="p" variant="bodyMd">

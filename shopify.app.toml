@@ -1,8 +1,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
-#https://assistor-app.onrender.com
+
 client_id = "01660e1e156a13fafba99f4848fff302"
-name = "The Vakaufa"
-handle = "the-vakaufa"
+name = "Vakaufa"
+handle = "vakaufa"
 application_url = "https://assistor-app.onrender.com"
 embedded = true
 
