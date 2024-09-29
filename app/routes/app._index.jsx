@@ -14,6 +14,7 @@ import {
 import { authenticate } from "../shopify.server";
 import { getAppData, initApp, updateAssistantInstructions, runProductTraining, getProductEmbeddingsCount } from "../utils/functions.server.js";
 
+
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
 
@@ -160,7 +161,7 @@ export default function Index() {
         <ui-title-bar title="Vakaufa">
           {!loaderData.showInitButton && (
             <button variant="primary" onClick={handleClickPreview}>
-              Vorschau
+              Preview
             </button>
           )}
         </ui-title-bar>
@@ -196,6 +197,7 @@ export default function Index() {
                 </Text>
                 <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
                   Here you can give your Vakaufa (AI Bot) instructions on how to behave. Write intuitively as you would talk to another human. And the more specific you are, the better.
+                  The instructions should be in your primary shop langugage. E.g. for a primarily german shop, write this in German.
                 </Text>
                 <div style={{ marginTop: "20px" }}>
                   <TextField
@@ -246,11 +248,11 @@ function CardWithHeaderActions() {
       <BlockStack gap="200">
         <InlineGrid columns="1fr auto">
           <Text as="h2" variant="headingLg">
-            Produktlernen
+            Product Study
           </Text>
           <Button
             onClick={handleProductTraining}
-            accessibilityLabel="Jetzt lernen"
+            accessibilityLabel="Study Now"
             disabled={isSaving}
             loading={isSaving}
             icon={PlusIcon}
@@ -259,10 +261,10 @@ function CardWithHeaderActions() {
           </Button>
         </InlineGrid>
         <Text as="p" variant="bodyMd">
-          Einmal Produkte lernen, um sie später den richtigen Kunden zu empfehlen. Vorgang dauert eine Weile.
+          Learn the products once. So the system can recommend the right products to the right customers. This process takes a while.
         </Text>
         <Text as="p" variant="bodyMd">
-          {productEmbeddingsCount} Produkte gelernt.
+          Learned {productEmbeddingsCount} products.
         </Text>
       </BlockStack>
     </Card>
