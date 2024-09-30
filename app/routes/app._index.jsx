@@ -209,7 +209,7 @@ export default function Index() {
             <Layout.Section>
               <Card sectioned>
                 <Text as="h2" variant="headingLg">
-                  Menschlicher Karakter
+                  Menschlicher Charakter
                 </Text>
                 <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
                   Hier können Sie Ihrem Verkaufa (KI Bot) sagen wir er es sich benehmen soll. Schreiben Sie intuitiv, als ob Sie zu einem Menschen schreiben würden. 

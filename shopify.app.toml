@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Vakaufa"
 handle = "vakaufa"
-application_url = "https://hopefully-s-verizon-cake.trycloudflare.com"
+application_url = "https://fully-cry-film-b.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://hopefully-s-verizon-cake.trycloudflare.com/auth/callback",
-  "https://hopefully-s-verizon-cake.trycloudflare.com/auth/shopify/callback",
-  "https://hopefully-s-verizon-cake.trycloudflare.com/api/auth/callback"
+  "https://fully-cry-film-b.trycloudflare.com/auth/callback",
+  "https://fully-cry-film-b.trycloudflare.com/auth/shopify/callback",
+  "https://fully-cry-film-b.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
