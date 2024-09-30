@@ -209,10 +209,10 @@ export default function Index() {
             <Layout.Section>
               <Card sectioned>
                 <Text as="h2" variant="headingLg">
-                  Menschlicher Charakter
+                  Charakter
                 </Text>
                 <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-                  Hier können Sie Ihrem Verkaufa (KI Bot) sagen wir er es sich benehmen soll. Schreiben Sie intuitiv, als ob Sie zu einem Menschen schreiben würden. 
+                  Hier können Sie Ihrem Bot sagen, wie es sich benehmen soll. Schreiben Sie intuitiv, als ob Sie zu einem Menschen schreiben würden. 
                 </Text>
                 <div style={{ marginTop: "20px" }}>
                   <TextField
@@ -276,7 +276,7 @@ function CardWithHeaderActions() {
           </Button>
         </InlineGrid>
         <Text as="p" variant="bodyMd">
-          Produkte lernen. Muss einmalig gemacht werden, dauert einen Moment.
+          Produkte lernen. Muss einmalig gemacht werden, dauert einen moment.
         </Text>
         <Text as="p" variant="bodyMd">
           {productEmbeddingsCount} Produkte gelernt.
