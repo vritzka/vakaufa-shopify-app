@@ -322,12 +322,14 @@ export async function runProductTraining(shop, admin) {
 
 export async function getProductEmbeddingsCount(session) {
 
-  //we also check how many product embeddings are saved in Pinecode
-  const countResponse = await pinecondeIndex.namespace(session.shop).describeIndexStats();
-  //console.log("countResponse:", countResponse);
-  const vectorCount = countResponse.totalRecordCount;
-  // console.log("vectorCount:", vectorCount);
+  //console.log("session:", session.shop);
 
-  return vectorCount;
+  //we also check how many product embeddings are saved in Pinecode
+  const countResponse = await pinecondeIndex.describeIndexStats();
+  //console.log("countResponse:", countResponse);
+  const vectorCount = countResponse.namespaces[session.shop]?.recordCount; 
+  //console.log("vectorCount:", vectorCount);
+
+  return vectorCount ?? 0;
 
 }
