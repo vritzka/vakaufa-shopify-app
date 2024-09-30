@@ -22,7 +22,7 @@ export const loader = async ({ request }) => {
   const url = request.url;
   const parsedUrl = new URL(url);
   const searchParams = parsedUrl.searchParams;
-  const locale = searchParams.get('locale').slice(0, 2);
+  //const locale = searchParams.get('locale').slice(0, 2);
 
   let assistorId = null;
   let openaiAssistantId = null;
@@ -41,7 +41,7 @@ export const loader = async ({ request }) => {
       openaiAssistantId,
       instructions,
       showInitButton,
-      locale,
+      //locale,
       environment
     });
 
@@ -80,7 +80,7 @@ export const loader = async ({ request }) => {
     instructions,
     showInitButton,
     productEmbeddingsCount,
-    locale,
+    //locale,
     environment
   });
 };
@@ -89,8 +89,8 @@ export const action = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
   const url = request.url;
   const parsedUrl = new URL(url);
-  const searchParams = parsedUrl.searchParams;
-  const locale = searchParams.get('locale').slice(0, 2);
+  //const searchParams = parsedUrl.searchParams;
+  //const locale = searchParams.get('locale').slice(0, 2);
 
   const formData = await request.formData();
   const intent = formData.get("intent");
@@ -106,7 +106,7 @@ export const action = async ({ request }) => {
       openaiAssistantId: initData.data.openaiAssistantId,
       instructions: initData.data.instructions,
       showInitButton: false,
-      locale
+      //locale
     });
   }
 
@@ -177,7 +177,7 @@ export default function Index() {
         <ui-title-bar title="Dashboard">
           {!loaderData.showInitButton && (
             <button variant="primary" onClick={handleClickPreview}>
-              Preview
+              Vorschau
             </button>
           )}
         </ui-title-bar>
@@ -185,7 +185,7 @@ export default function Index() {
           <Layout.Section>
             <Card sectioned>
               <EmptyState
-                heading="Start your Vakaufa"
+                heading="Start Vakaufa"
                 action={{
                   content: 'Start',
                   disabled: isSaving,
@@ -209,11 +209,10 @@ export default function Index() {
             <Layout.Section>
               <Card sectioned>
                 <Text as="h2" variant="headingLg">
-                  Character
+                  Menschlicher Karakter
                 </Text>
                 <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-                  Here you can give your Vakaufa (AI Bot) instructions on how to behave. Write intuitively as you would talk to another human. And the more specific you are, the better.
-                  The instructions should be in your primary shop langugage. E.g. for a primarily german shop, write this in German.
+                  Hier können Sie Ihrem Verkaufa (KI Bot) sagen wir er es sich benehmen soll. Schreiben Sie intuitiv, als ob Sie zu einem Menschen schreiben würden. 
                 </Text>
                 <div style={{ marginTop: "20px" }}>
                   <TextField
@@ -226,7 +225,7 @@ export default function Index() {
                 </div>
                 <PageActions
                   primaryAction={{
-                    content: isSaving ? 'Saving...' : 'Save',
+                    content: isSaving ? 'Speichere...' : 'Speichern',
                     onAction: handleSaveInstructions,
                     disabled: isSaving,
                     loading: isSaving,
@@ -264,11 +263,11 @@ function CardWithHeaderActions() {
       <BlockStack gap="200">
         <InlineGrid columns="1fr auto">
           <Text as="h2" variant="headingLg">
-            Product Study
+            Produkte lernen
           </Text>
           <Button
             onClick={handleProductTraining}
-            accessibilityLabel="Study Now"
+            accessibilityLabel="Jetzt lernen"
             disabled={isSaving}
             loading={isSaving}
             icon={PlusIcon}
@@ -277,10 +276,10 @@ function CardWithHeaderActions() {
           </Button>
         </InlineGrid>
         <Text as="p" variant="bodyMd">
-          Learn the products once. So the system can recommend the right products to the right customers. This process takes a while.
+          Produkte lernen. Muss einmalig gemacht werden, dauert einen Moment.
         </Text>
         <Text as="p" variant="bodyMd">
-          Learned {productEmbeddingsCount} products.
+          {productEmbeddingsCount} Produkte gelernt.
         </Text>
       </BlockStack>
     </Card>

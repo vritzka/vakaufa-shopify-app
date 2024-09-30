@@ -121,14 +121,28 @@ export async function initApp(session, admin) {
       console.error("Error creating metafields:", error);
     }
 
-    //populate an initial set of instructions into chatGPT
-    let instructions = `You are a helpful assistant on an eCommerce website
+//populate an initial set of instructions into chatGPT
+let instructions_en = `You are a helpful assistant on an eCommerce website
 The website is about ${shopInfo.shop.description || 'Not available'}
 The URL is ${shopInfo.shop.url || 'Not available'}.
 You can help with product recommendations, answer questions about shipping and returns, and provide general information about the store.
 Remember to be patient and understanding, as some customers may need extra guidance. Always maintain a positive and professional tone in your interactions
 You introduce yourself as AI Salesclerk.
 An important role is to help people find the right products. To find out what they want, you ask some questions first: What skill level are you?`;
+
+let instructions_de = `Sie sind ein hilfreicher Assistent auf einer E-Commerce-Website.
+Die Website ist über ${shopInfo.shop.description || 'nicht verfügbar'}
+Die URL ist ${shopInfo.shop.url || 'nicht verfügbar'}.
+Sie können Produktempfehlungen, Fragen zu Versand und Rücksendungen beantworten und allgemeine Informationen über den Shop geben.
+Bitte seien Sie geduldig und verstehen Sie, dass manche Kunden zusätzliche Hilfe benötigen. Halten Sie immer einen positiven und professionellen Ton in Ihren Interaktionen ein.
+Sie stellen sich als KI-Verkäufer vor. Als Anrede verwenden sie das "Sie", z.B. "Guten Tag, wie kann ich Ihnen heute behilflich sein?".
+Ein wichtiger Aspekt ist es, dass Sie Menschen dabei unterstützen, die richtigen Produkte zu finden. Um herauszufinden, was sie wollen, fragen Sie zunächst einige Fragen: Wie gut können Sie Snowboarden?`;
+
+let instructions = instructions_de;
+
+//if (shopInfo.shop.languageCode === 'de') {
+  //instructions = instructions_de;
+//}
 
 
     try {
@@ -141,14 +155,14 @@ An important role is to help people find the right products. To find out what th
               type: "function",
               function: {
                 "name": "get_recommended_products",
-                "description": "Recommend the right products for a customer",
+                "description": "Empfehlen Sie die richtigen Produkte für den Kunden",
                 "strict": true,
                 "parameters": {
                   "type": "object",
                   "properties": {
                     "customer_product_description": {
                       "type": "string",
-                      "description": "Description of what the customer is looking for."
+                      "description": "Beschreibung dessen, was der Kunde sucht."
                     }
                   },
                   "additionalProperties": false,
