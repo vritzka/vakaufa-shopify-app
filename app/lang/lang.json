@@ -12,6 +12,7 @@
     "learnProductsDescription": "The system will learn about the products in your store. This takes a moment.",
     "productsLearned": "products learned",
     "installAppEmbedd": "Set up Chat Window",
+    "installAppEmbeddText": "Click this Button once to set up the Chat Window in your template. There you can set color and size.",
     "gotToAppEmbedd": "Set up Chat Window"
   },
   "de": {
@@ -27,6 +28,7 @@
     "learnProductsDescription": "Das System wird die Produkte in Ihrem Shop lernen. Dies dauert eine kurze Zeit.",
     "productsLearned": "Produkte gelernt",
     "installAppEmbedd": "Set up Chat Window",
+    "installAppEmbeddText": "Klicken Sie diesen Button einmalig um den Chat in Ihrem Template zu aktivieren. Dor können Sie Größe und Farbe festlegen.",
     "gotToAppEmbedd": "Set up Chat Window"
   }
 }

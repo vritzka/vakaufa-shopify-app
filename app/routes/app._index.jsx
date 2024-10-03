@@ -291,7 +291,7 @@ function CardWithHeaderActions() {
 
 function CardWithInstructions() {
 
-  const { shop, lang } = useLoaderData(); 
+  const { shop, lang } = useLoaderData();
 
   return (
     <Card roundedAbove="sm">
@@ -300,17 +300,18 @@ function CardWithInstructions() {
           <Text as="h2" variant="headingLg">
             {langData[lang].installAppEmbedd}
           </Text>
+          <Button
+          url={`https://${shop}/admin/themes/current/editor?context=apps&activateAppId=c295800e-a686-42f6-9fec-2becbf8bd379/assistor`}
+          accessibilityLabel={langData[lang].gotToAppEmbedd}
+          fullWidth={false}
+          target="_top"
+        >
+          {langData[lang].gotToAppEmbedd}
+        </Button>
         </InlineGrid>
         <Text as="p" variant="bodyMd">
-          Set up
+          {langData[lang].installAppEmbeddText}
         </Text>
-        <Button
-            url={`https://${shop}/admin/themes/current/editor?context=apps&activateAppId=c295800e-a686-42f6-9fec-2becbf8bd379/assistor`}
-            accessibilityLabel={langData[lang].gotToAppEmbedd}
-            fullWidth={false}
-          >
-            {langData[lang].gotToAppEmbedd}
-          </Button>
       </BlockStack>
     </Card>
   );

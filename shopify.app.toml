@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Vakaufa"
 handle = "vakaufa"
-application_url = "https://raleigh-noted-rear-candidate.trycloudflare.com"
+application_url = "https://domestic-counting-searching-persian.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://raleigh-noted-rear-candidate.trycloudflare.com/auth/callback",
-  "https://raleigh-noted-rear-candidate.trycloudflare.com/auth/shopify/callback",
-  "https://raleigh-noted-rear-candidate.trycloudflare.com/api/auth/callback"
+  "https://domestic-counting-searching-persian.trycloudflare.com/auth/callback",
+  "https://domestic-counting-searching-persian.trycloudflare.com/auth/shopify/callback",
+  "https://domestic-counting-searching-persian.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
