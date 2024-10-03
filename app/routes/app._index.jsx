@@ -14,7 +14,7 @@ import {
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { getAppData, initApp, updateAssistantInstructions, runProductTraining, getProductEmbeddingsCount } from "../utils/functions.server.js";
-
+import langData from "../lang/lang.json";
 
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
@@ -22,7 +22,8 @@ export const loader = async ({ request }) => {
   const url = request.url;
   const parsedUrl = new URL(url);
   const searchParams = parsedUrl.searchParams;
-  //const locale = searchParams.get('locale').slice(0, 2);
+  const lang = searchParams.get('locale').slice(0, 2);
+  const appData = await getAppData(admin);
 
   let assistorId = null;
   let openaiAssistantId = null;
@@ -31,17 +32,16 @@ export const loader = async ({ request }) => {
   let instructions = '';
   const environment = process.env.NODE_ENV;
 
-  const appData = await getAppData(admin);
-
   if (!appData || appData.currentAppInstallation.metafields.edges.length == 0) {
     showInitButton = true;
     return json({
+      shop: session.shop,
       appInstallationId,
       assistorId,
       openaiAssistantId,
       instructions,
       showInitButton,
-      //locale,
+      locale,
       environment
     });
 
@@ -74,13 +74,14 @@ export const loader = async ({ request }) => {
   const productEmbeddingsCount = await getProductEmbeddingsCount(session);
 
   return json({
+    shop: session.shop,
     appInstallationId,
     assistorId,
     openaiAssistantId,
     instructions,
     showInitButton,
     productEmbeddingsCount,
-    //locale,
+    lang,
     environment
   });
 };
@@ -129,24 +130,24 @@ export const action = async ({ request }) => {
 
 export default function Index() {
   const fetcher = useFetcher();
-  const loaderData = useLoaderData();
-  const actionData = useActionData();
+  console.log("loaderData", useLoaderData());
+  const { lang, environment, instructions, showInitButton } = useLoaderData();
 
   const isSaving = fetcher.state === 'submitting';
 
-  const [instructions, setInstructions] = useState(
-    fetcher.data?.instructions || loaderData.instructions
+  const [newInstructions, setNewInstructions] = useState(
+    fetcher.data?.instructions || instructions
   );
 
   useEffect(() => {
     if (fetcher.data?.instructions) {
-      setInstructions(fetcher.data.instructions);
+      setNewInstructions(fetcher.data.instructions);
     }
   }, [fetcher.data]);
 
   useEffect(() => {
-    setInstructions(loaderData.instructions);
-  }, [loaderData.instructions]);
+    setNewInstructions(instructions);
+  }, [instructions]);
 
   const handleInitialize = () => {
     fetcher.submit(
@@ -156,38 +157,38 @@ export default function Index() {
   };
 
   const handleInstructionsChange = (value) => {
-    setInstructions(value);
+    setNewInstructions(value);
   };
 
   const handleSaveInstructions = () => {
     fetcher.submit(
-      { intent: "updateInstructions", openaiAssistantId: loaderData.openaiAssistantId, instructions },
+      { intent: "updateInstructions", openaiAssistantId: openaiAssistantId, instructions },
       { method: "post" }
     );
   };
 
   const handleClickPreview = () => {
-    const url = loaderData.environment === "production" ? "https://streamlit-app-i5dp.onrender.com" : "http://localhost:8501";
-    window.open(`${url}/?id=${loaderData.assistorId}`, '_blank', 'noopener,noreferrer');
+    const url = environment === "production" ? "https://streamlit-app-i5dp.onrender.com" : "http://localhost:8501";
+    window.open(`${url}/?id=${assistorId}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
     <Page>
       <Layout>
-        <ui-title-bar title="Dashboard">
-          {!loaderData.showInitButton && (
+        <ui-title-bar title={langData[lang].dashboard}>
+          {!showInitButton && (
             <button variant="primary" onClick={handleClickPreview}>
-              Vorschau
+              {langData[lang].preview}
             </button>
           )}
         </ui-title-bar>
-        {loaderData.showInitButton && (
+        {showInitButton && (
           <Layout.Section>
             <Card sectioned>
               <EmptyState
-                heading="Start Vakaufa"
+                heading="{langData[lang].start}"
                 action={{
-                  content: 'Start',
+                  content: langData[lang].start,
                   disabled: isSaving,
                   loading: isSaving,
                   onAction: () => {
@@ -204,20 +205,20 @@ export default function Index() {
             </Card>
           </Layout.Section>
         )}
-        {!loaderData.showInitButton && (
+        {!showInitButton && (
           <>
             <Layout.Section>
               <Card sectioned>
                 <Text as="h2" variant="headingLg">
-                  Charakter
+                  {langData[lang].character}
                 </Text>
                 <Text variant="bodyMd" as="p" style={{ marginTop: "10px" }}>
-                  Hier können Sie Ihrem Bot sagen, wie es sich benehmen soll. Schreiben Sie intuitiv, als ob Sie zu einem Menschen schreiben würden. 
+                  {langData[lang].characterDescription}
                 </Text>
                 <div style={{ marginTop: "20px" }}>
                   <TextField
                     disabled={isSaving}
-                    value={instructions}
+                    value={newInstructions}
                     multiline={10}
                     onChange={handleInstructionsChange}
                     autoComplete="off"
@@ -225,7 +226,7 @@ export default function Index() {
                 </div>
                 <PageActions
                   primaryAction={{
-                    content: isSaving ? 'Speichere...' : 'Speichern',
+                    content: isSaving ? langData[lang].saving : langData[lang].save,
                     onAction: handleSaveInstructions,
                     disabled: isSaving,
                     loading: isSaving,
@@ -238,6 +239,9 @@ export default function Index() {
             </Layout.Section>
           </>
         )}
+        <Layout.Section>
+          <CardWithInstructions />
+        </Layout.Section>
       </Layout>
     </Page>
   );
@@ -246,8 +250,7 @@ export default function Index() {
 function CardWithHeaderActions() {
 
   const fetcher = useFetcher();
-  const { productEmbeddingsCount } = useLoaderData();
-  const actionData = useActionData();
+  const { productEmbeddingsCount, lang } = useLoaderData();
 
   const isSaving = fetcher.state === 'submitting';
 
@@ -263,11 +266,11 @@ function CardWithHeaderActions() {
       <BlockStack gap="200">
         <InlineGrid columns="1fr auto">
           <Text as="h2" variant="headingLg">
-            Produkte lernen
+            {langData[lang].learnProducts}
           </Text>
           <Button
             onClick={handleProductTraining}
-            accessibilityLabel="Jetzt lernen"
+            accessibilityLabel={langData[lang].learnProducts}
             disabled={isSaving}
             loading={isSaving}
             icon={PlusIcon}
@@ -276,11 +279,38 @@ function CardWithHeaderActions() {
           </Button>
         </InlineGrid>
         <Text as="p" variant="bodyMd">
-          Produkte lernen. Muss einmalig gemacht werden, dauert einen moment.
+          {langData[lang].learnProductsDescription}
         </Text>
         <Text as="p" variant="bodyMd">
-          {productEmbeddingsCount} Produkte gelernt.
+          {productEmbeddingsCount} {langData[lang].productsLearned}.
         </Text>
+      </BlockStack>
+    </Card>
+  );
+}
+
+function CardWithInstructions() {
+
+  const { shop, lang } = useLoaderData(); 
+
+  return (
+    <Card roundedAbove="sm">
+      <BlockStack gap="200">
+        <InlineGrid columns="1fr auto">
+          <Text as="h2" variant="headingLg">
+            {langData[lang].installAppEmbedd}
+          </Text>
+        </InlineGrid>
+        <Text as="p" variant="bodyMd">
+          Set up
+        </Text>
+        <Button
+            url={`https://${shop}/admin/themes/current/editor?context=apps&activateAppId=c295800e-a686-42f6-9fec-2becbf8bd379/assistor`}
+            accessibilityLabel={langData[lang].gotToAppEmbedd}
+            fullWidth={false}
+          >
+            {langData[lang].gotToAppEmbedd}
+          </Button>
       </BlockStack>
     </Card>
   );

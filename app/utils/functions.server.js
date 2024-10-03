@@ -26,7 +26,7 @@ AWS.config.update({
 // Create Lambda client
 const lambda = new AWS.Lambda();
 
-export async function initApp(session, admin) {
+export async function initApp(shop, admin) {
 
   console.log("Initializing app");
 
@@ -222,7 +222,7 @@ export async function getAppData(admin) {
     //console.error("Error fetching App data:", error);
   }
 }
-async function getShopInfo(admin) {
+async function getShopInfo(admin, shop) {
 
   try {
     const response = await admin.graphql(
@@ -239,6 +239,8 @@ async function getShopInfo(admin) {
     if (!response.ok) {
       throw new Error("Failed to get Shop data");
     }
+
+
 
     const responseJson = await response.json();
 

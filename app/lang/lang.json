@@ -1,0 +1,32 @@
+{
+  "en": {
+    "welcome": "Welcome",
+    "dashboard": "Dashboard",
+    "start": "Start Vakaufa",
+    "preview": "Preview",
+    "character": "Character",
+    "characterDescription": "Here you can tell your bot how it should behave. Write intuitively as if you were writing to a person.",
+    "save": "Save",
+    "saving": "Saving...",
+    "learnProducts": "Learn Products",
+    "learnProductsDescription": "The system will learn about the products in your store. This takes a moment.",
+    "productsLearned": "products learned",
+    "installAppEmbedd": "Set up Chat Window",
+    "gotToAppEmbedd": "Set up Chat Window"
+  },
+  "de": {
+    "welcome": "Willkommen",
+    "dashboard": "Übersicht",
+    "start": "Start Vakaufa",
+    "preview": "Vorschau",
+    "character": "Charakter",
+    "characterDescription": "Hier können Sie Ihrem Bot sagen, wie es sich benehmen soll. Schreiben Sie intuitiv, als ob Sie zu einem Menschen schreiben würden.",
+    "save": "Speichern",
+    "saving": "Speichere...",
+    "learnProducts": "Produkte lernen",
+    "learnProductsDescription": "Das System wird die Produkte in Ihrem Shop lernen. Dies dauert eine kurze Zeit.",
+    "productsLearned": "Produkte gelernt",
+    "installAppEmbedd": "Set up Chat Window",
+    "gotToAppEmbedd": "Set up Chat Window"
+  }
+}
