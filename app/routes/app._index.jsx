@@ -41,7 +41,7 @@ export const loader = async ({ request }) => {
       openaiAssistantId,
       instructions,
       showInitButton,
-      locale,
+      lang,
       environment
     });
 
