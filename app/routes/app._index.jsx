@@ -121,7 +121,6 @@ export const action = async ({ request }) => {
   }
 
   if (intent === "productTraining") {
-    console.log("productTraining");
     const res = await runProductTraining(session, admin);
     const productTraining = await res.json();
     return json({ success: true, productTraining });
@@ -130,23 +129,22 @@ export const action = async ({ request }) => {
 
 export default function Index() {
   const fetcher = useFetcher();
-  console.log("loaderData", useLoaderData());
-  const { lang, environment, instructions, showInitButton } = useLoaderData();
+  const { lang, environment, showInitButton, instructions: initialInstructions, openaiAssistantId, assistorId} = useLoaderData();
 
   const isSaving = fetcher.state === 'submitting';
 
-  const [newInstructions, setNewInstructions] = useState(
-    fetcher.data?.instructions || instructions
+  const [instructions, setInstructions] = useState(
+    fetcher.data?.instructions || initialInstructions
   );
 
   useEffect(() => {
     if (fetcher.data?.instructions) {
-      setNewInstructions(fetcher.data.instructions);
+      setInstructions(fetcher.data.instructions);
     }
   }, [fetcher.data]);
 
   useEffect(() => {
-    setNewInstructions(instructions);
+    setInstructions(instructions);
   }, [instructions]);
 
   const handleInitialize = () => {
@@ -157,10 +155,11 @@ export default function Index() {
   };
 
   const handleInstructionsChange = (value) => {
-    setNewInstructions(value);
+    setInstructions(value);
   };
 
   const handleSaveInstructions = () => {
+    console.log("instructions", instructions);
     fetcher.submit(
       { intent: "updateInstructions", openaiAssistantId: openaiAssistantId, instructions },
       { method: "post" }
@@ -186,7 +185,7 @@ export default function Index() {
           <Layout.Section>
             <Card sectioned>
               <EmptyState
-                heading="{langData[lang].start}"
+                heading=""
                 action={{
                   content: langData[lang].start,
                   disabled: isSaving,
@@ -218,7 +217,7 @@ export default function Index() {
                 <div style={{ marginTop: "20px" }}>
                   <TextField
                     disabled={isSaving}
-                    value={newInstructions}
+                    value={instructions}
                     multiline={10}
                     onChange={handleInstructionsChange}
                     autoComplete="off"
@@ -237,11 +236,11 @@ export default function Index() {
             <Layout.Section>
               <CardWithHeaderActions />
             </Layout.Section>
+            <Layout.Section>
+              <CardWithInstructions />
+            </Layout.Section>
           </>
         )}
-        <Layout.Section>
-          <CardWithInstructions />
-        </Layout.Section>
       </Layout>
     </Page>
   );

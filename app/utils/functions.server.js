@@ -26,7 +26,7 @@ AWS.config.update({
 // Create Lambda client
 const lambda = new AWS.Lambda();
 
-export async function initApp(shop, admin) {
+export async function initApp(session, admin) {
 
   console.log("Initializing app");
 
@@ -138,7 +138,7 @@ Bitte seien Sie geduldig und verstehen Sie, dass manche Kunden zusätzliche Hilf
 Sie stellen sich als KI-Verkäufer vor. Als Anrede verwenden sie das "Sie", z.B. "Guten Tag, wie kann ich Ihnen heute behilflich sein?".
 Ein wichtiger Aspekt ist es, dass Sie Menschen dabei unterstützen, die richtigen Produkte zu finden. Um herauszufinden, was sie wollen, fragen Sie zunächst einige Fragen: Wie gut können Sie Snowboarden?`;
 
-let instructions = instructions_de;
+let instructions = instructions_en;
 
 //if (shopInfo.shop.languageCode === 'de') {
   //instructions = instructions_de;
@@ -308,13 +308,10 @@ export async function runProductTraining(shop, admin) {
     // Process the result
     const payload = await JSON.parse(result.Payload);
 
-    console.log("payload:", payload);
+    //console.log("payload:", payload);
 
-    if (payload.statusCode === 200) {
-      return json({ success: true, data: payload.body });
-    } else {
-      throw new Error(payload.body || 'Lambda function execution failed');
-    }
+    return json({ success: true, data: payload.body });
+
 
   } catch (error) {
     console.error("Error running product training:", error);
