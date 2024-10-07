@@ -2,6 +2,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     if (typeof Assistor !== 'undefined' && Assistor.config) {
+      Assistor.config.country = {{ localization.country.iso_code | json}};
       Assistor.config.position = {{ block.settings.chat_position | json }};
       Assistor.config.color = {{ block.settings.chat_color | json }};
       Assistor.config.assistorId = {{ app.metafields.assistor.assistor_id | json }};

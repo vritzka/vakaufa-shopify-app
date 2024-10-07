@@ -22,7 +22,8 @@ export const loader = async ({ request }) => {
   const url = request.url;
   const parsedUrl = new URL(url);
   const searchParams = parsedUrl.searchParams;
-  const lang = searchParams.get('locale').slice(0, 2);
+  console.log("searchParams", searchParams);
+  const lang = searchParams?.get('locale')?.slice(0, 2) || 'en';
   const appData = await getAppData(admin);
 
   let assistorId = null;
