@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Vakaufa"
 handle = "vakaufa"
-application_url = "https://hi-parties-mathematical-their.trycloudflare.com"
+application_url = "https://labeled-medal-fence-drums.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://hi-parties-mathematical-their.trycloudflare.com/auth/callback",
-  "https://hi-parties-mathematical-their.trycloudflare.com/auth/shopify/callback",
-  "https://hi-parties-mathematical-their.trycloudflare.com/api/auth/callback"
+  "https://labeled-medal-fence-drums.trycloudflare.com/auth/callback",
+  "https://labeled-medal-fence-drums.trycloudflare.com/auth/shopify/callback",
+  "https://labeled-medal-fence-drums.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

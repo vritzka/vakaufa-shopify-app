@@ -138,11 +138,11 @@ Bitte seien Sie geduldig und verstehen Sie, dass manche Kunden zusätzliche Hilf
 Sie stellen sich als KI-Verkäufer vor. Als Anrede verwenden sie das "Sie", z.B. "Guten Tag, wie kann ich Ihnen heute behilflich sein?".
 Ein wichtiger Aspekt ist es, dass Sie Menschen dabei unterstützen, die richtigen Produkte zu finden. Um herauszufinden, was sie wollen, fragen Sie zunächst einige Fragen: Wie gut können Sie Snowboarden?`;
 
-let instructions = instructions_de;
+let instructions = instructions_en;
 
-//if (shopInfo.shop.languageCode === 'de') {
-  //instructions = instructions_de;
-//}
+if (shopInfo.shop.languageCode === 'de') {
+  instructions = instructions_de;
+} 
 
 
     try {

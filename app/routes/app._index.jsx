@@ -24,6 +24,7 @@ export const loader = async ({ request }) => {
   const searchParams = parsedUrl.searchParams;
   console.log("searchParams", searchParams);
   const lang = searchParams?.get('locale')?.slice(0, 2) || 'en';
+  console.log(lang);
   const appData = await getAppData(admin);
 
   let assistorId = null;
