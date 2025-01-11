@@ -1,5 +1,5 @@
 {
-  "name": "assistor2",
+  "name": "vakaufa",
   "private": true,
   "scripts": {
     "build": "remix vite:build",
@@ -33,7 +33,7 @@
     "@shopify/app-bridge-react": "^4.1.2",
     "@shopify/polaris": "^12.0.0",
     "@shopify/shopify-app-remix": "^3.0.2",
-    "@shopify/shopify-app-session-storage-prisma": "^5.0.2",
+    "@shopify/shopify-app-session-storage-prisma": "^5.1.5",
     "aws-sdk": "^2.1691.0",
     "bullmq": "^5.13.2",
     "i18n": "^0.15.1",
@@ -60,7 +60,7 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.2.4",
-    "prisma": "^6.2.1",
+    "prisma": "^5.11.0",
     "typescript": "^5.2.2",
     "vite": "^5.1.3"
   },

@@ -259,7 +259,7 @@ export async function updateAssistantInstructions(openaiAssistantId, instruction
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "OpenAI-Beta": "assistants=v1"
+        "OpenAI-Beta": "assistants=v2"
       },
       body: JSON.stringify({ instructions })
     });
@@ -292,7 +292,7 @@ export async function runProductTraining(shop, admin) {
       })
     };
 
-    console.log("params:", params);
+    //console.log("params:", params);
 
     // Invoke Lambda function
     const result = await new Promise((resolve, reject) => {
@@ -320,15 +320,22 @@ export async function runProductTraining(shop, admin) {
 }
 
 export async function getProductEmbeddingsCount(session) {
+  const maxRetries = 6;
+  const delayMs = 2000; // 2 seconds delay between retries
+  
+  const getCount = async (attempt = 1) => {
+    const countResponse = await pinecondeIndex.describeIndexStats();
+    const vectorCount = countResponse.namespaces[session.shop]?.recordCount ?? 0;
+    
+    // If count is 0 and we haven't exceeded max retries, try again
+    if (vectorCount === 0 && attempt < maxRetries) {
+      console.log(`Attempt ${attempt}: Count is 0, waiting ${delayMs}ms before retry...`);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+      return getCount(attempt + 1);
+    }
+    
+    return vectorCount;
+  };
 
-  //console.log("session:", session.shop);
-
-  //we also check how many product embeddings are saved in Pinecode
-  const countResponse = await pinecondeIndex.describeIndexStats();
-  //console.log("countResponse:", countResponse);
-  const vectorCount = countResponse.namespaces[session.shop]?.recordCount; 
-  //console.log("vectorCount:", vectorCount);
-
-  return vectorCount ?? 0;
-
+  return await getCount();
 }

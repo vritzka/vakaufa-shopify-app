@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Vakaufa"
 handle = "vakaufa"
-application_url = "https://labeled-medal-fence-drums.trycloudflare.com"
+application_url = "https://kate-puzzle-blanket-saved.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://labeled-medal-fence-drums.trycloudflare.com/auth/callback",
-  "https://labeled-medal-fence-drums.trycloudflare.com/auth/shopify/callback",
-  "https://labeled-medal-fence-drums.trycloudflare.com/api/auth/callback"
+  "https://kate-puzzle-blanket-saved.trycloudflare.com/auth/callback",
+  "https://kate-puzzle-blanket-saved.trycloudflare.com/auth/shopify/callback",
+  "https://kate-puzzle-blanket-saved.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

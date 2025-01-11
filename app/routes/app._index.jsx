@@ -1,8 +1,8 @@
 import { json } from "@remix-run/node";
 import { URL } from "url";
-import { EmptyState, BlockStack, InlineGrid, Button } from '@shopify/polaris';
+import { EmptyState, BlockStack, InlineGrid, Button, Spinner } from '@shopify/polaris';
 import { PlusIcon } from '@shopify/polaris-icons';
-import { useLoaderData, useActionData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useActionData, useFetcher, useNavigation } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import {
   Page,
@@ -22,9 +22,8 @@ export const loader = async ({ request }) => {
   const url = request.url;
   const parsedUrl = new URL(url);
   const searchParams = parsedUrl.searchParams;
-  console.log("searchParams", searchParams);
+  //console.log("searchParams", searchParams);
   const lang = searchParams?.get('locale')?.slice(0, 2) || 'en';
-  console.log(lang);
   const appData = await getAppData(admin);
 
   let assistorId = null;
@@ -54,12 +53,14 @@ export const loader = async ({ request }) => {
   }
 
   //if app is not new, we fetch the instructions from the openai assistant
+
   try {
     const response = await fetch(`https://api.openai.com/v1/assistants/${openaiAssistantId}`, {
       method: "GET",
       headers: {
+        "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "OpenAI-Beta": "assistants=v1"
+        "OpenAI-Beta": "assistants=v2"
       }
     });
 
@@ -73,8 +74,6 @@ export const loader = async ({ request }) => {
     console.error("Error fetching openAI assistant instructions:", error);
   }
 
-  const productEmbeddingsCount = await getProductEmbeddingsCount(session);
-
   return json({
     shop: session.shop,
     appInstallationId,
@@ -82,7 +81,6 @@ export const loader = async ({ request }) => {
     openaiAssistantId,
     instructions,
     showInitButton,
-    productEmbeddingsCount,
     lang,
     environment
   });
@@ -126,6 +124,11 @@ export const action = async ({ request }) => {
     const res = await runProductTraining(session, admin);
     const productTraining = await res.json();
     return json({ success: true, productTraining });
+  }
+
+  if (intent === "getProductCount") {
+    const count = await getProductEmbeddingsCount(session);
+    return json({ count });
   }
 }
 
@@ -249,17 +252,35 @@ export default function Index() {
 }
 
 function CardWithHeaderActions() {
-
+  const countFetcher = useFetcher();
+  const { lang } = useLoaderData();
   const fetcher = useFetcher();
-  const { productEmbeddingsCount, lang } = useLoaderData();
-
   const isSaving = fetcher.state === 'submitting';
+
+  // Initial count fetch on mount
+  useEffect(() => {
+    countFetcher.submit(
+      { intent: "getProductCount" },
+      { method: "post" }
+    );
+  }, []);
+
+  // Watch for training completion and then fetch new count
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      countFetcher.submit(
+        { intent: "getProductCount" },
+        { method: "post" }
+      );
+    }
+  }, [fetcher.data]);
 
   const handleProductTraining = () => {
     fetcher.submit(
       { intent: "productTraining" },
       { method: "post" }
     );
+    // Removed the immediate count fetch
   };
 
   return (
@@ -282,9 +303,11 @@ function CardWithHeaderActions() {
         <Text as="p" variant="bodyMd">
           {langData[lang].learnProductsDescription}
         </Text>
-        <Text as="p" variant="bodyMd">
-          {productEmbeddingsCount} {langData[lang].productsLearned}.
-        </Text>
+        {countFetcher.state === "submitting" ? (
+          <Spinner accessibilityLabel="Loading product count" size="small" />
+        ) : (
+          <>{countFetcher.data?.count ?? 0} {langData[lang].productsLearned}</>
+        )}
       </BlockStack>
     </Card>
   );

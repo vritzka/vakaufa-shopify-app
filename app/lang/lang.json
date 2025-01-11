@@ -8,11 +8,11 @@
     "characterDescription": "Here you can tell your bot how it should behave. Write intuitively as if you were writing to a person.",
     "save": "Save",
     "saving": "Saving...",
-    "learnProducts": "Learn Products",
+    "learnProducts": "Product Training",
     "learnProductsDescription": "The system will learn about the products in your store. This takes a moment.",
     "productsLearned": "products learned",
     "installAppEmbedd": "Set up Chat Window",
-    "installAppEmbeddText": "Click this Button once to set up the Chat Window in your template. There you can set color and size.",
+    "installAppEmbeddText": "Click this to set up the Chat Window in your Shop Front end. This is what the customers see.",
     "gotToAppEmbedd": "Set up Chat Window"
   },
   "de": {
@@ -28,7 +28,7 @@
     "learnProductsDescription": "Das System wird die Produkte in Ihrem Shop lernen. Dies dauert eine kurze Zeit.",
     "productsLearned": "Produkte gelernt",
     "installAppEmbedd": "Set up Chat Window",
-    "installAppEmbeddText": "Klicken Sie diesen Button einmalig um den Chat in Ihrem Template zu aktivieren. Dor können Sie Größe und Farbe festlegen.",
+    "installAppEmbeddText": "Klicken Sie diesen Button um den Chat in Ihrem Shop zu aktivieren. Dies ist was die Kunden sehen. Dort können Sie z.B. Größe und Farbe des Chatbots einstellen.",
     "gotToAppEmbedd": "Set up Chat Window"
   }
 }
