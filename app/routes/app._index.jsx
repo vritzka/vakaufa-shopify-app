@@ -8,6 +8,7 @@ import {
   Page,
   Layout,
   Card,
+  LegacyCard,
   Text,
   TextField,
   PageActions,
@@ -188,9 +189,9 @@ export default function Index() {
         </ui-title-bar>
         {showInitButton && (
           <Layout.Section>
-            <Card sectioned>
+            <LegacyCard sectioned>
               <EmptyState
-                heading=""
+                heading="Hello!"
                 action={{
                   content: langData[lang].start,
                   disabled: isSaving,
@@ -204,9 +205,9 @@ export default function Index() {
                 }}
                 image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
               >
-                <p></p>
+                <p>This will set up your Vakaufer AI Assistant</p>
               </EmptyState>
-            </Card>
+            </LegacyCard>
           </Layout.Section>
         )}
         {!showInitButton && (
