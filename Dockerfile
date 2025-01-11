@@ -14,6 +14,9 @@ RUN npm ci --omit=dev && npm cache clean --force && npm install openai bullmq io
 # Remove this line if you want to run CLI commands in your container.
 RUN npm remove @shopify/cli
 
+RUN apt-get update -y
+RUN apt-get install -y openssl
+
 COPY . .
 
 RUN npm run build

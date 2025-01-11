@@ -2,7 +2,7 @@ import { json } from "@remix-run/node";
 import { URL } from "url";
 import { EmptyState, BlockStack, InlineGrid, Button, Spinner } from '@shopify/polaris';
 import { PlusIcon } from '@shopify/polaris-icons';
-import { useLoaderData, useActionData, useFetcher, useNavigation } from "@remix-run/react";
+import { useLoaderData, useFetcher} from "@remix-run/react";
 import { useState, useEffect } from "react";
 import {
   Page,
