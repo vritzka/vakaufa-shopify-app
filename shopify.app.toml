@@ -3,7 +3,7 @@
 client_id = "01660e1e156a13fafba99f4848fff302"
 name = "Vakaufa - AI Shop Assistant"
 handle = "vakaufa"
-application_url = "https://um-immediate-pt-mom.trycloudflare.com"
+application_url = "https://ripe-beats-floral-appreciate.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_metaobjects,read_products,write_metaobjects"
 
 [auth]
 redirect_urls = [
-  "https://um-immediate-pt-mom.trycloudflare.com/auth/callback",
-  "https://um-immediate-pt-mom.trycloudflare.com/auth/shopify/callback",
-  "https://um-immediate-pt-mom.trycloudflare.com/api/auth/callback"
+  "https://ripe-beats-floral-appreciate.trycloudflare.com/auth/callback",
+  "https://ripe-beats-floral-appreciate.trycloudflare.com/auth/shopify/callback",
+  "https://ripe-beats-floral-appreciate.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
